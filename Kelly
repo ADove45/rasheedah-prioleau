@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Author Salon: How to Pass a Test Chapter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', 'Crimson Text', serif;
+            background: linear-gradient(135deg, #d4a574, #c49b61, #b8956a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(252, 249, 245, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 165, 116, 0.2);
+        }
+
+        .slide {
+            display: none;
+            padding: 60px 50px;
+            min-height: 600px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #8b5a3c;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(139, 90, 60, 0.1);
+        }
+
+        h2 {
+            color: #a06b47;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        h3 {
+            color: #b8956a;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            margin-top: 30px;
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        p, li {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        li::marker {
+            color: #e17055;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fdcb6e 0%, #fdcb6e 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 0.3em;
+            background-position: 0 88%;
+            padding: 2px 0;
+            font-weight: bold;
+        }
+
+        .exercise-box {
+            background: linear-gradient(135deg, #d4a574, #c49b61);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            border-left: 3px solid #8b5a3c;
+            box-shadow: 0 8px 25px rgba(139, 90, 60, 0.15);
+        }
+
+        .exercise-box h4 {
+            color: #fcf9f5;
+            font-size: 1.25em;
+            margin-bottom: 18px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(139, 90, 60, 0.3);
+        }
+
+        .exercise-box p {
+            color: #fcf9f5;
+            font-size: 1.05em;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(214, 48, 49, 0.1);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #e17055, #d63031);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            text-align: center;
+            color: #e17055;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .intro-slide {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(253, 203, 110, 0.2), rgba(225, 112, 85, 0.2));
+            border-radius: 15px;
+        }
+
+        .intro-slide h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+        }
+
+        .intro-slide p {
+            font-size: 1.4em;
+            color: #636e72;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .key-point {
+            background: rgba(253, 203, 110, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #e17055;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fab1a0, #e17055);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #d63031;
+        }
+
+        .warning-box p {
+            color: white;
+            font-weight: bold;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #81ecec, #00b894);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00a085;
+        }
+
+        .success-box p {
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active intro-slide">
+            <h1>💼 Author Salon</h1>
+            <h2 style="color: #e17055; border: none; font-size: 2.2em;">How to Pass a Test Chapter</h2>
+            <p>Master the art of writing compelling test chapters that get you hired by platforms and clients</p>
+            <div style="margin-top: 40px; font-size: 1.1em; color: #e17055;">
+                <span class="emoji">🎯</span>Your gateway to freelance writing success
+            </div>
+        </div>
+
+        <!-- Slide 2: What is a Test Chapter? -->
+        <div class="slide">
+            <h2><span class="emoji">🔍</span>What is a "Test Chapter"?</h2>
+            <div class="key-point">
+                <p>A <span class="highlight">test chapter</span> is your first impression—the make-or-break moment that determines whether the platform will hire you.</p>
+            </div>
+            <ul>
+                <li><strong>Platform Assessment:</strong> Writing platforms use test chapters to evaluate your skills</li>
+                <li><strong>Client Screening:</strong> Potential clients judge your writing ability and style</li>
+                <li><strong>Quality Benchmark:</strong> Demonstrates your understanding of genre conventions</li>
+                <li><strong>Professional Standards:</strong> Shows you can meet deadlines and follow guidelines</li>
+            </ul>
+            <div class="warning-box">
+                <p><span class="emoji">⚠️</span> Most writers are rejected at the test chapter stage - make yours count!</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Purpose & Immersion -->
+        <div class="slide">
+            <h2><span class="emoji">🎯</span>Understand Your Chapter's Purpose</h2>
+            <div class="key-point">
+                <h3>Master Concise, Vivid Language</h3>
+                <p>Use <span class="highlight">concise, vivid language</span> to quickly establish your story world and demonstrate your writing prowess - every word must earn its place.</p>
+            </div>
+            <ul>
+                <li><strong>Economy of Language:</strong> Say more with fewer words - cut ruthlessly</li>
+                <li><strong>Sensory Precision:</strong> Choose specific, evocative details over generic descriptions</li>
+                <li><strong>World-Building Efficiency:</strong> Establish setting through action, not exposition</li>
+                <li><strong>Voice Clarity:</strong> Let personality shine through word choice and rhythm</li>
+                <li><strong>Emotional Immediacy:</strong> Create feeling through precise language, not explanation</li>
+            </ul>
+            <div class="success-box">
+                <p><span class="emoji">✅</span> Remember: You're not just telling a story - you're proving you can write professionally</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Show Don't Tell -->
+        <div class="slide">
+            <h2><span class="emoji">🎭</span>Advance Plot Through Action</h2>
+            <div class="key-point">
+                <p>Move your story forward through <span class="highlight">dialogue and events</span> rather than lengthy descriptions or internal monologue.</p>
+            </div>
+            <h3>✅ Platform-Winning Techniques:</h3>
+            <ul>
+                <li><strong>Start Mid-Scene:</strong> Drop readers into action or conflict</li>
+                <li><strong>Dynamic Dialogue:</strong> Use conversation to reveal character and advance plot</li>
+                <li><strong>Active Voice:</strong> Keep sentences energetic and direct</li>
+                <li><strong>Immediate Stakes:</strong> Make something important happen quickly</li>
+            </ul>
+            <h3>❌ Common Test Chapter Mistakes:</h3>
+            <ul>
+                <li>Long setup paragraphs that bore evaluators</li>
+                <li>Excessive backstory that slows momentum</li>
+                <li>Overwritten descriptions that show amateur status</li>
+                <li>Passive scenes where nothing significant happens</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Intimate Scenes -->
+        <div class="slide">
+            <h2><span class="emoji">💫</span>Include Intimate Moments Effectively</h2>
+            <div class="key-point">
+                <p>Create <span class="highlight">emotional connection</span> that demonstrates your ability to write compelling, relatable characters.</p>
+            </div>
+            <h3>Professional Intimacy Techniques:</h3>
+            <ul>
+                <li><strong>Emotional Vulnerability:</strong> Show character fears, hopes, or weaknesses</li>
+                <li><strong>Authentic Dialogue:</strong> Write conversations that feel real and meaningful</li>
+                <li><strong>Sensory Details:</strong> Use the five senses to create atmosphere</li>
+                <li><strong>Character Depth:</strong> Reveal personality through small actions and choices</li>
+            </ul>
+            <div class="warning-box">
+                <p><span class="emoji">⚠️</span> For platform work: Keep intimate scenes appropriate for your target audience and genre expectations</p>
+            </div>
+        </div>
+
+        <!-- Slide 6: Test Chapter Exercises -->
+        <div class="slide">
+            <h2><span class="emoji">📝</span>Test Chapter Exercises</h2>
+            
+            <div class="exercise-box">
+                <h4>Exercise 1: The Vivid Economy Challenge</h4>
+                <p>Establish your story world in exactly 50 words. Include: setting, character, conflict, and one vivid sensory detail. Use precise verbs and specific nouns - no adjectives allowed. This forces concise, powerful language.</p>
+            </div>
+
+            <div class="exercise-box">
+                <h4>Exercise 2: Word Surgery</h4>
+                <p>Write a 200-word opening scene, then cut it to 100 words without losing impact. Replace weak verb + adverb combinations with strong single verbs. Show your editing prowess.</p>
+            </div>
+
+            <div class="exercise-box">
+                <h4>Exercise 3: Sensory World-Building</h4>
+                <p>Establish your setting using only dialogue and action - no descriptive paragraphs. Let characters interact with their environment to reveal the world. Vivid details emerge through what they touch, hear, and experience.</p>
+            </div>
+        </div>
+
+
+
+        <!-- Slide 7: Key Takeaways -->
+        <div class="slide">
+            <h2><span class="emoji">🏆</span>Your Test Chapter Success Formula</h2>
+            <div class="key-point">
+                <h3>The Platform-Winning Approach:</h3>
+                <ul style="font-size: 1.3em; margin-top: 20px;">
+                    <li><strong>Professional Polish:</strong> Error-free, market-ready writing</li>
+                    <li><strong>Immediate Engagement:</strong> Hook readers from the first sentence</li>
+                    <li><strong>Genre Mastery:</strong> Demonstrate understanding of conventions</li>
+                    <li><strong>Unique Voice:</strong> Stand out while meeting expectations</li>
+                    <li><strong>Emotional Impact:</strong> Make evaluators remember your work</li>
+                </ul>
+            </div>
+            <div class="success-box" style="margin-top: 30px;">
+                <p style="text-align: center; font-size: 1.3em;">
+                    <span class="emoji">💡</span> "Your test chapter isn't just writing - it's your job application"
+                </p>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 1.2em; color: #636e72;">
+                Go get that platform approval! 🚀✨
+            </p>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+            <div class="slide-counter">
+                <span id="slideNumber">1</span> / <span id="totalSlides">7</span>
+            </div>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 7;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = totalSlides;
+            if (n < 1) currentSlide = 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('slideNumber').textContent = currentSlide;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(1);
+    </script>
+</body>
+</html>
