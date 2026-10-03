@@ -27,11 +27,19 @@ t('tagline', S.tagline); t('bio', S.bio); t('year', new Date().getFullYear());
 var cards = document.getElementById('cards');
 S.novels.forEach(function(n){
   var c = document.createElement('div'); c.className = 'card';
+  var img = document.createElement('img'); img.className = 'cover'; img.src = n.cover; img.alt = 'Cover of ' + n.title; img.loading = 'lazy';
+  var m = document.createElement('div'); m.className = 'meta'; m.textContent = n.book;
   var h = document.createElement('h3'); h.textContent = n.title;
-  var m = document.createElement('div'); m.className = 'meta'; m.textContent = n.book + ' · ' + n.length;
   var p = document.createElement('p'); p.textContent = n.blurb;
-  var a = document.createElement('a'); a.className = 'btn'; a.textContent = 'Read'; a.href = 'reader.html?novel=' + encodeURIComponent(n.slug);
-  c.append(h, m, p, a); cards.appendChild(c);
+  c.append(img, m, h, p);
+  if(n.playable){
+    var a = document.createElement('a'); a.className = 'btn'; a.textContent = 'Read'; a.href = 'reader.html?novel=' + encodeURIComponent(n.slug);
+    c.appendChild(a);
+  } else {
+    var soon = document.createElement('div'); soon.className = 'soon'; soon.textContent = 'Interactive edition coming soon';
+    c.appendChild(soon);
+  }
+  cards.appendChild(c);
 });
 </script>
 </body>

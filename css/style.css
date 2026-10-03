@@ -27,3 +27,8 @@ footer{text-align:center;color:var(--muted);padding:40px 20px;border-top:1px sol
 #choices .btn{text-align:left}
 .end{margin-top:30px;color:var(--accent);font-style:italic;text-align:center}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cover{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);aspect-ratio:2/3;object-fit:cover}
+.card .meta{text-transform:uppercase;letter-spacing:.15em;color:var(--accent)}
+.card p{font-size:.95rem;color:#d9cdbf}
+.soon{border:1px dashed var(--accent2);color:var(--accent);padding:10px;border-radius:8px;text-align:center;font-size:.9rem}
+.cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
