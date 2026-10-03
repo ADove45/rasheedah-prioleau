@@ -23,3 +23,6 @@ Repo Settings → Pages → Deploy from branch → select the branch and `/ (roo
 
 In a scene, a paragraph starting `@ethan ` is read in that character's voice; everything else is read by the narrator.
 The full manuscript is **not** in this repo.
+
+## Pictures and video
+Each scene has a pinned picture/video area. Add files to `media/act1/` (see the README there); until then a labeled placeholder is shown.

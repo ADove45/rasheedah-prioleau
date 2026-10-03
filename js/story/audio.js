@@ -114,7 +114,7 @@ window.ASAudio = (function () {
   function setEnabled(on) { enabled = on; if (master) master.gain.setTargetAtTime(on ? 0.85 : 0, ctx.currentTime, 0.2); }
 
   // ---------- voices (device text-to-speech, picked like a reader would) ----------
-  var voiceList = [], run = 0, pref = { narr: '', f: '', m: '', rate: 1.0 };
+  var voiceList = [], run = 0, pref = { narr: '', aud: '', f: '', m: '', rate: 1.0 };
   var FEM = /samantha|victoria|karen|moira|tessa|aria|jenny|zira|susan|hazel|ava|allison|joanna|female|serena|fiona|emma|libby|sonia|michelle|nicole|salli|kendra|ivy|amy|siri/i;
   var MALE = /daniel|alex|fred|david|mark|guy|george|male|tom|aaron|ryan|brian|davis|oliver|arthur|matthew|joey|justin|eric|christopher|gordon/i;
   function loadVoices() { if (window.speechSynthesis) { try { voiceList = speechSynthesis.getVoices().filter(function (v) { return /^en/i.test(v.lang); }); } catch (e) { voiceList = []; } } }
@@ -128,7 +128,7 @@ window.ASAudio = (function () {
   }
   function findByName(n) { return n && voiceList.filter(function (v) { return v.name === n; })[0]; }
   function resolve(who) {
-    who = who || {}; var g = who.g || 'f', want = who.narr ? pref.narr : pref[g], v = findByName(want), pitch = who.pitch || 1, rate = (who.rate || 1) * pref.rate;
+    who = who || {}; var g = who.g || 'f', want = who.narr ? pref.narr : who.aud ? pref.aud : pref[g], v = findByName(want), pitch = who.pitch || 1, rate = (who.rate || 1) * pref.rate;
     if (!v) { var list = ranked(g); v = list[Math.min(who.rank || 0, list.length - 1)] || null; }
     if (g === 'm' && v && !MALE.test(v.name) && FEM.test(v.name)) pitch = Math.min(pitch, 0.6);
     return { voice: v, pitch: pitch, rate: rate };
@@ -154,7 +154,7 @@ window.ASAudio = (function () {
     }
     nextItem(); return true;
   }
-  function loadPref() { try { var d = JSON.parse(localStorage.getItem('as-voices') || '{}'); pref = { narr: d.narr || '', f: d.f || '', m: d.m || '', rate: +d.rate || 1.0 }; } catch (e) {} }
+  function loadPref() { try { var d = JSON.parse(localStorage.getItem('as-voices') || '{}'); pref = { narr: d.narr || '', aud: d.aud || '', f: d.f || '', m: d.m || '', rate: +d.rate || 1.0 }; } catch (e) {} }
   function savePref() { try { localStorage.setItem('as-voices', JSON.stringify(pref)); } catch (e) {} }
   loadPref();
 
