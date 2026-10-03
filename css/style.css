@@ -32,3 +32,5 @@ footer{text-align:center;color:var(--muted);padding:40px 20px;border-top:1px sol
 .card p{font-size:.95rem;color:#d9cdbf}
 .soon{border:1px dashed var(--accent2);color:var(--accent);padding:10px;border-radius:8px;text-align:center;font-size:.9rem}
 .cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+#bio p{margin-bottom:1em}
+blockquote{border-left:3px solid var(--accent2);padding:6px 0 6px 18px;margin-top:24px;font-style:italic;color:var(--accent);font-size:1.15rem}

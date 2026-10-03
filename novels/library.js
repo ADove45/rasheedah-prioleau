@@ -5,7 +5,11 @@ window.SITE = {
   penName: "Rasheedah Prioleau",
   series: "American Specter Series",
   tagline: "In Specter, Georgia, the living and the dead walk the same streets.",
-  bio: "Rasheedah Prioleau is the author of the American Specter series, set in Specter, Georgia, a town where the living and the dead have learned to coexist. (Replace this with your own bio.)",
+  bio: [
+    "Rasheedah Prioleau is a southern African American writer with an eclectic range of writing and ghostwriting credits. After a few years in the corporate world, she started over from the bottom as an unpaid intern for a literary manager and never looked back.",
+    "Writers who have influenced her include: Judy Blume, Jude Deveraux, V.C. Andrews, Octavia Butler, Stephanie Meyer, Charlaine Harris, Joss Whedon, William Nicholson, Shonda Rhimes, Quentin Tarantino, Tyler Perry, Mike Kelley, and J.J. Abrams... just to name a few."
+  ],
+  quote: "I love to write because there are no limits. All it takes is a finite space of time and I can create a story from infinite possibilities.",
   novels: [
     {
       slug: "the-seven-sisters",
