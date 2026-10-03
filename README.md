@@ -26,3 +26,6 @@ The full manuscript is **not** in this repo.
 
 ## Pictures and video
 Each scene has a pinned picture/video area. Add files to `media/act1/` (see the README there); until then a labeled placeholder is shown.
+
+## Good Girl romance (standalone)
+`good-girl.html` is a self-contained interactive romance (*Mafia Daddy's Captivating Good Girl*, 5 acts, 6 endings, HER/HIM scenes, Listen). One file, no build step; set `CONFIG.BOOK_URL` at the top of its script to show a "Read the full novel" button.

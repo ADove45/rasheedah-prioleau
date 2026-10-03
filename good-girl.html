@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1430">
+<meta name="description" content="An interactive romance based on the novel by Krystal Silvers. You play Layla. Five acts, six endings.">
+<title>Mafia Daddy’s Captivating Good Girl — An Interactive Romance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400;1,6..96,500&family=Spectral:ital,wght@0,400;0,600;1,400&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow reading column, like a page of the novel, under a slim sticky bar. The only ornament is the HER / HIM point-of-view tag. */
+:root {
+  --bg: #0e1430;        /* midnight blue, the dress from chapter one */
+  --surface: #172048;
+  --fg: #f2ede3;
+  --muted: #a8b0cf;
+  --accent: #e2556f;    /* the red gala gown */
+  --accent-ink: #ffffff;
+  --accent-fill: #b3243f;
+  --gold: #dcc38e;      /* champagne */
+  --line: #2c386b;
+  --display: "Bodoni Moda", "Didot", "Bodoni MT", "Times New Roman", serif;
+  --body: "Spectral", Georgia, "Times New Roman", serif;
+  --label: "Jost", "Avenir Next", "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #edf0f8; --surface: #ffffff; --fg: #131936; --muted: #515c88;
+    --accent: #a01d38; --accent-ink: #ffffff; --accent-fill: #a01d38; --gold: #775a1c; --line: #cbd1e6;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #edf0f8; --surface: #ffffff; --fg: #131936; --muted: #515c88;
+  --accent: #a01d38; --accent-ink: #ffffff; --accent-fill: #a01d38; --gold: #775a1c; --line: #cbd1e6;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 1.25rem; line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* ── top bar ── */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  padding: 0.6rem 1rem;
+}
+.bar-in { max-width: 44rem; margin: 0 auto; display: flex; align-items: center; gap: 0.75rem 1rem; flex-wrap: wrap; }
+.mark { font-family: var(--display); font-style: italic; font-size: 1.15rem; line-height: 1.2; margin-right: auto; min-width: 0; }
+.acts { display: flex; gap: 4px; align-items: center; }
+.acts i { display: block; width: 1.6rem; height: 4px; background: var(--line); }
+.acts i.on { background: var(--accent); }
+.tools { display: flex; gap: 0.4rem; }
+.tool {
+  font-family: var(--label); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  background: none; border: 1px solid var(--line); padding: 0.45rem 0.8rem; min-height: 2.6rem;
+}
+.tool:hover { border-color: var(--fg); }
+.tool[disabled] { opacity: 0.4; cursor: default; }
+.tool.on { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+
+/* ── page ── */
+.page { max-width: 44rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2rem 4rem; }
+.view { display: flex; flex-direction: column; gap: 1.4rem; }
+.fade { animation: rise 0.45s ease both; }
+@keyframes rise { from { opacity: 0.2; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .fade { animation: none; } }
+
+.eyebrow {
+  font-family: var(--label); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center;
+}
+.pov {
+  font-weight: 600; letter-spacing: 0.22em; padding: 0.15rem 0.6rem 0.15rem 0.8rem;
+  border: 1px solid var(--accent); color: var(--accent);
+}
+.pov.him { border-color: var(--gold); color: var(--gold); }
+h1, h2 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+.scene-title { font-size: clamp(1.9rem, 6vw, 2.7rem); line-height: 1.12; font-style: italic; }
+.prose { display: flex; flex-direction: column; gap: 1.05em; max-width: 36rem; }
+.prose p { margin: 0; }
+.him-scene .prose { border-left: 2px solid var(--gold); padding-left: 1.1rem; }
+
+.choices { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.6rem; max-width: 36rem; }
+.prompt { font-family: var(--label); font-size: 0.95rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+.choice {
+  text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--line);
+  padding: 0.95rem 1.1rem; font-size: 1.2rem; line-height: 1.4;
+  transition: border-color 0.15s, background 0.15s;
+}
+.choice:hover { border-color: var(--accent); }
+.choice:active { background: var(--accent-fill); color: var(--accent-ink); }
+.choice.next { background: none; border-color: var(--line); font-family: var(--label); font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── cover ── */
+.cover { gap: 1.6rem; padding-top: 1rem; }
+.cover h1 { font-size: clamp(2.6rem, 11vw, 5rem); line-height: 0.98; letter-spacing: -0.01em; }
+.cover h1 em { font-style: italic; color: var(--accent); }
+.byline { font-family: var(--label); letter-spacing: 0.18em; text-transform: uppercase; font-size: 1rem; color: var(--gold); }
+.lede { max-width: 34rem; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 0.5rem 1.6rem; font-family: var(--label); font-size: 1rem; color: var(--muted); margin: 0; padding: 0; list-style: none; }
+.facts b { color: var(--fg); font-weight: 600; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+.cta {
+  font-family: var(--label); font-size: 1.05rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.95rem 1.6rem; border: 1px solid var(--accent-fill); background: var(--accent-fill); color: var(--accent-ink); text-decoration: none; display: inline-block;
+}
+.cta.ghost { background: none; color: var(--fg); border-color: var(--line); }
+.cta:hover { filter: brightness(1.12); }
+.note { font-size: 1.05rem; color: var(--muted); max-width: 34rem; margin: 0; }
+
+/* ── ending ── */
+.end-kind { color: var(--gold); }
+.end-title { font-size: clamp(2.3rem, 9vw, 4rem); line-height: 1; font-style: italic; }
+.tally { font-family: var(--label); font-size: 1.05rem; color: var(--muted); margin: 0; }
+.tally b { color: var(--fg); }
+hr.rule { border: 0; border-top: 1px solid var(--line); width: 100%; margin: 0.4rem 0; }
+
+/* ── map panel ── */
+.panel { position: fixed; inset: 0; z-index: 10; background: var(--bg); overflow-y: auto; padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px); }
+.panel-in { max-width: 44rem; margin: 0 auto; padding-inline: 1.25rem; padding-block: 1.2rem 3rem; display: flex; flex-direction: column; gap: 1.6rem; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.panel h2 { font-size: 2rem; font-style: italic; }
+.sub { font-family: var(--label); font-size: 0.95rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 0 0 0.6rem; font-weight: 500; }
+.meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem 1.5rem; }
+.meter-name { font-family: var(--label); font-size: 1rem; display: flex; justify-content: space-between; gap: 0.5rem; }
+.meter-name span:last-child { color: var(--muted); }
+.track { height: 6px; background: var(--line); margin-top: 0.35rem; }
+.track i { display: block; height: 100%; background: var(--accent); }
+.act-block { border-top: 1px solid var(--line); padding-top: 0.9rem; margin-top: 1.1rem; }
+.act-name { font-family: var(--display); font-size: 1.35rem; margin: 0; }
+.act-ch { font-family: var(--label); font-size: 0.95rem; color: var(--muted); }
+.dec { list-style: none; margin: 0.6rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.dec li { font-size: 1.1rem; line-height: 1.4; min-width: 0; }
+.dec .q { font-family: var(--label); font-size: 0.95rem; color: var(--muted); display: block; }
+.dec .ahead { color: var(--muted); font-style: italic; }
+.ends { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.6rem; }
+.ends li { border: 1px solid var(--line); padding: 0.7rem 0.9rem; min-width: 0; }
+.ends li.got { border-color: var(--gold); }
+.ends .k { font-family: var(--label); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; }
+.ends .n { font-family: var(--display); font-style: italic; font-size: 1.3rem; }
+.ends li:not(.got) .n { color: var(--muted); font-style: normal; font-family: var(--label); font-size: 1.05rem; }
+.voices { display: flex; flex-direction: column; gap: 0.7rem; }
+.vrow { display: grid; grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr) auto; gap: 0.6rem; align-items: center; font-family: var(--label); font-size: 1rem; }
+.vrow select { font: inherit; min-width: 0; width: 100%; min-height: 2.6rem; padding: 0.3rem 0.5rem; background: var(--surface); color: var(--fg); border: 1px solid var(--line); }
+.vnote { font-family: var(--label); font-size: 0.95rem; color: var(--muted); margin: 0.7rem 0 0; }
+@media (max-width: 30rem) { .vrow { grid-template-columns: minmax(0, 1fr) auto; } .vrow span { grid-column: 1 / -1; } }
+.confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; font-family: var(--label); font-size: 1rem; }
+
+/* ── polish: compact one-row bar on phones, easier tap targets, comfortable reading ── */
+@media (max-width: 34rem) {
+  body { font-size: 1.15rem; }
+  .bar { padding: 0.45rem 0.75rem; }
+  .bar-in { gap: 0.4rem 0.6rem; flex-wrap: nowrap; }
+  .mark { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .acts { display: none; }
+  .tools { gap: 0.3rem; flex: none; }
+  .tool { font-size: 0.8rem; letter-spacing: 0.04em; padding: 0.4rem 0.55rem; min-height: 2.5rem; }
+  .page { padding-block: 1.4rem 3rem; }
+  .cta { width: 100%; text-align: center; }
+}
+.choice { min-height: 3rem; }
+.choice:focus-visible { border-color: var(--accent); }
+html { scroll-padding-top: 4rem; }
+@media print { .bar, .choices, .cta-row { display: none; } }
+</style>
+</head>
+<body>
+
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="mark">Captivating Good Girl</div>
+    <div class="acts" id="acts" aria-hidden="true"></div>
+    <div class="tools">
+      <button class="tool" id="btn-listen" type="button" aria-pressed="false" hidden>Listen</button>
+      <button class="tool" id="btn-back" type="button">Back</button>
+      <button class="tool" id="btn-map" type="button">Map</button>
+    </div>
+  </div>
+</header>
+
+<main class="page"><div id="view" class="view"></div></main>
+
+<section class="panel" id="panel" hidden aria-label="Story map">
+  <div class="panel-in" id="panel-in"></div>
+</section>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   SETTINGS — edit these two lines for your own website.
+   BOOK_URL: paste your sales link between the quotes to show a
+   "Read the full novel" button on the cover and on every ending.
+   ════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  BOOK_URL: "",
+  SAVE_KEY: "captivating-good-girl-v1"
+};
+
+/* Mafia Daddy's Captivating Good Girl — interactive adaptation
+   Story data. Each scene: act, ch (source chapters in the novel), pov, title, text, choices.
+   State s: trust, secrets, anton, nerve, sophia + flags. */
+const ACTS = [
+  { n: 1, name: "One Wrong Move", ch: "Chapters 1–6" },
+  { n: 2, name: "Walking a Thin Line", ch: "Chapters 7–23" },
+  { n: 3, name: "She’s Gone", ch: "Chapters 23–41" },
+  { n: 4, name: "Going Once, Twice… Sold", ch: "Chapters 42–58" },
+  { n: 5, name: "Mr. & Mrs. DeLuca", ch: "Chapters 59–80" }
+];
+
+const ENDINGS = {
+  goodgirl: { name: "Good Girl", kind: "The true ending" },
+  deluca: { name: "Mr. & Mrs. DeLuca", kind: "The novel’s ending" },
+  queen: { name: "Two Families, One Table", kind: "The crown ending" },
+  harbor: { name: "Safe Harbor", kind: "Anton’s ending" },
+  ohio: { name: "The Girl Who Ran", kind: "An early exit" },
+  arrangement: { name: "The Arrangement", kind: "The cold ending" }
+};
+
+const STORY = {
+  /* ───────────── ACT 1 ───────────── */
+  knock: {
+    act: 1, ch: "1", pov: "HER", title: "A World Turned Upside Down",
+    text: `*Bang. Bang. Bang.*
+
+10:37 PM. You are out of bed before you are awake, and the lock splinters before you reach the door. Two men. Rough hands. A car with cold leather seats, and then a penthouse that smells like money.
+
+Behind the desk sits Marco Vasquez, your mother’s boyfriend. You never liked him. You never trusted him.
+
+They drag your mother in. Her lip is split. “Layla, I’m so sorry. I didn’t mean for this to happen.”
+
+“Your mother thought she could steal from me,” Marco says, pleasant as a waiter. “So you are going to help me recoup. You know Dante DeLuca’s daughter. You will get close to her. You will bring me what you learn about him.”
+
+“And if I don’t?”
+
+His smile widens. “Then your mother will pay the price.”`,
+    choices: [
+      { label: "“I’ll do it. Just don’t hurt her.”", to: "gala" },
+      { label: "“No. Find someone else.”", to: "refuse", fx: s => { s.nerve += 1; } }
+    ]
+  },
+  refuse: {
+    act: 1, ch: "1", pov: "HER", title: "The Price of No",
+    text: `Marco doesn’t raise his voice. He nods, once, to the man holding your mother.
+
+The sound she makes is small. That is the worst part.
+
+“Stop. *Stop.* I’ll do it.”
+
+“Of course you will.” Marco straightens his cuff. “But I like that you tried. It tells me you will be convincing.” He gestures at the tall blond man by the door, the one with eyes like a frozen lake. “Anton will be your handler. Anton will make sure you stay on task.”
+
+You learn something tonight that you will need later. Saying no costs. You will have to choose carefully where to spend it.`,
+    choices: [{ label: "Let the stylists do their work", to: "gala" }]
+  },
+  gala: {
+    act: 1, ch: "1", pov: "HER", title: "Midnight Blue",
+    decision: "At the charity gala",
+    text: `By midnight you do not recognize yourself. Your dark hair is swept up. The dress is midnight blue and fits like a second skin. Anton’s hand is heavy on your back as he walks you into a ballroom full of the city’s elite.
+
+Sophia DeLuca stands across the room, furious. In college she had paparazzi and a gaggle of rich friends. You had your late father’s tuition money and nothing else. You doubt she knows your name.
+
+You drift close enough to hear the problem. Her guest speaker is too drunk to stand.
+
+Across the room you spot Dr. James Thompson. You heard him speak last year, when you volunteered for the Children’s Hope Foundation.
+
+Dante DeLuca is nowhere. Anton is watching from a corner.`,
+    choices: [
+      { label: "Fix Sophia’s night. Bring her Dr. Thompson.", to: "hallway", fx: s => { s.sophia += 1; s.f.helped = true; } },
+      { label: "Stay by the wall and watch the doors for DeLuca.", to: "hallway", fx: s => { s.nerve += 1; } }
+    ]
+  },
+  hallway: {
+    act: 1, ch: "1–2", pov: "HER", title: "One Wrong Move",
+    decision: "The stranger’s offer",
+    text: s => `${s.f.helped
+      ? "Dr. Thompson takes the stage and Sophia grips your hand. “Layla, you really saved the night.” She takes your number. Then she mentions, bitterly, that her father couldn’t be bothered to show up."
+      : "An hour of watching the doors gets you nothing. Dante DeLuca never walks through them. Sophia finds her own replacement speaker and never looks your way."}
+
+So you have nothing for Marco. You slip into the hallway to think, and you don’t realize you are crying until a tear lands on your wrist.
+
+That is when he appears. Tall. Dark hair graying at the temples. Warm brown eyes that look straight through you.
+
+“May I have this dance?”
+
+You should say no. You put your hand in his instead, and the two of you move like you have been dancing for years. When the song ends he doesn’t let go.
+
+“Let me take you home tonight,” he murmurs.
+
+Outside, Anton is nowhere in sight. A limo is waiting. The stranger still hasn’t told you his name.`,
+    choices: [
+      { label: "Get in the limo.", to: "limo" },
+      { label: "“I’m sorry. I can’t.” Go find Anton.", to: "antoncar", fx: s => { s.anton += 1; s.f.refusedRide = true; } }
+    ]
+  },
+  limo: {
+    act: 1, ch: "2–3", pov: "HER", title: "A Dangerous Heat",
+    text: `“I don’t even know your name,” you say.
+
+“I promise to tell you before sunrise.” He leans in. “If you have to call me something, you can call me Mister. Or Daddy, if you prefer.”
+
+Then his jaw tightens. “We’re being followed.”
+
+A black SUV. The limo swerves and you are thrown against his chest. He holds you there, calm, giving orders to the driver while metal screams against metal.
+
+The safe house is an unmarked door and a keypad. Inside, your stomach growls and he laughs and makes pasta. He lifts a spoon of sauce to your lips. Before you can lick the last of it away, he kisses it off you.
+
+You are breathless. “Thank you, Mister…”
+
+His hand cups your cheek. “Call me Daddy.”`,
+    choices: [
+      { label: "“Thank you… Daddy.”", to: "morning", fx: s => { s.trust += 1; s.f.daddy = true; } },
+      { label: "“Your name first. Then we’ll see.”", to: "morning", fx: s => { s.nerve += 1; } }
+    ]
+  },
+  antoncar: {
+    act: 1, ch: "2", pov: "HER", title: "The Plan",
+    text: `You find Anton at the valet stand, already angry.
+
+“You danced with him,” he says in the car.
+
+“With who? I don’t know who that was.”
+
+He looks at you for a long moment, and something in the frozen-lake eyes shifts. “Then you did right, walking away. He is worse than you think.” A pause. “So is everyone.”
+
+It is the closest thing to kindness anyone has offered you tonight. He walks you to your door and checks the broken lock himself.
+
+You sleep for three hours and dream about a stranger’s hand on the small of your back.`,
+    choices: [{ label: "Morning", to: "marco" }]
+  },
+  morning: {
+    act: 1, ch: "3–4", pov: "HER", title: "A Morning of Revelation",
+    text: s => `${s.f.daddy
+      ? "“Good girl,” he says, and his thumb traces your lower lip."
+      : "He laughs, low. “Before sunrise. I promised.” He kisses you again, and the argument dissolves."}
+
+The pasta goes cold. You have never been wanted like this. You fall asleep with his arm around you, in a bed you have never seen before.
+
+Sunrise comes and goes and he still hasn’t told you.
+
+At breakfast he calls himself a problem solver. He says he has a daughter and she is his world. Then his phone rings.
+
+“Don’t worry, Sophia. I’ll handle it.”
+
+The pieces fall into place and your coffee goes sour in your mouth.
+
+“You’re Sophia DeLuca’s father. You’re *Dante DeLuca*.”
+
+“Yes.” His eyes do not leave your face. “I see my reputation precedes me.”
+
+You just spent the night with the man you were sent to spy on.`,
+    choices: [{ label: "“I should go. Thank you for breakfast.”", to: "marco" }]
+  },
+  marco: {
+    act: 1, ch: "4–5", pov: "HER", title: "A Tangled Web",
+    text: s => `Marco is standing in your living room when you get home.
+
+${s.f.refusedRide
+      ? "“A whole gala and you bring me nothing.”"
+      : "“Where the hell have you been?” You tell him you stayed with a friend. You tell him your phone died."}
+
+His hand comes across your cheek so fast you don’t see it. “Next time, your mother feels that.”
+
+You cry in the shower until the water runs cold. Then you make a decision. You will play the part, but you will not play his game. Your father had friends he trusted. You will find them and get your mother out.
+
+When you open the door, Anton is standing there with flowers.
+
+“These were delivered for you,” he says, flat. “They’re from Dante.”
+
+${s.f.refusedRide
+      ? "The card reads: *You said you couldn’t. I’d like to hear why. Dinner. — D. DeLuca.* So that is who he was."
+      : "You bury your face in the petals to hide your smile."}
+
+That night Dante sits across a candlelit table. “I might have let you go,” he says. “But now I want to make you mine.”`,
+    choices: [{ label: "Hear his terms", to: "terms" }]
+  },
+  terms: {
+    act: 1, ch: "5–6", pov: "HER", title: "Champagne Wishes and Foolish Dreams",
+    decision: "Dante’s terms",
+    text: `“I need you to understand what it means to be my woman,” Dante says. “You belong to me. You are loyal to me, honest with me, obedient to me.”
+
+“And what do I get in return?”
+
+“My protection. My provision. My unwavering devotion. I will cherish you and make you feel like the queen you are.”
+
+His thumb brushes your lips.
+
+“First and foremost, I expect complete honesty. No secrets, no lies. If there is something you can’t tell me, then say so. But don’t ever deceive me.”
+
+Your mother’s split lip. Marco’s smile. Anton outside in a parked car. All of it sits on your tongue.
+
+“Do you accept all of my terms, Layla?”`,
+    choices: [
+      { label: "“Yes. I accept.” Say nothing about Marco.", to: "warning", fx: s => { s.trust += 1; s.secrets += 2; } },
+      { label: "“There is something I can’t tell you. Not yet.”", to: "warning", fx: s => { s.trust += 1; s.secrets += 1; s.nerve += 1; s.f.loophole = true; } },
+      { label: "Tell him everything. Marco. Your mother. The mission.", to: "confession", fx: s => { s.trust += 2; s.f.truth = true; } }
+    ]
+  },
+  confession: {
+    act: 1, ch: "6", pov: "HER", title: "The Truth, Early",
+    text: `You tell him all of it. The door splintering. Your mother’s face. Sophia. Anton.
+
+Dante goes very still. Then he stands, says one word to the man at the door, and leaves.
+
+You sit for six hours with Nicolo, his second, who watches you like a ledger that doesn’t balance.
+
+When Dante comes back he has taken off his jacket. He crouches in front of your chair.
+
+“You told me the truth when a lie would have been easier. Almost no one does that.” He tilts your chin up. “So here is how it will go. You keep reporting to Marco. You tell him what I give you and nothing else.”
+
+“And my mother?”
+
+“When I can reach her without getting her killed.” His voice drops. “I keep what’s mine, Layla. That now includes your problems.”
+
+Nicolo does not look convinced. But Dante says, “Good girl,” and for the first time in two days you breathe.`,
+    choices: [{ label: "Move into the penthouse", to: "warning" }]
+  },
+
+  /* ───────────── ACT 2 ───────────── */
+  warning: {
+    act: 2, ch: "7–8", pov: "HER", title: "Shadows and Secrets",
+    decision: "Your father’s envelope",
+    text: s => `You become the mistress of one of the most powerful men in the city. The penthouse is beautiful and cold, like a very expensive hotel.
+
+Sophia finds you there. The warmth from the gala is gone. “I know what a climber looks like. Hurt my father and I will bury you.”
+
+${s.f.loophole ? "Dante has not asked again about the thing you can’t tell him. He is waiting, and you can feel it.\n\n" : ""}You need allies of your own. You remember Maria, your father’s secretary for twenty years. She works at a bank now.
+
+Maria’s eyes fill when she sees you. From a safe deposit box she takes a thick envelope. “Your father made me promise never to open it. It’s for you, and you alone.”
+
+You walk out holding it against your chest, and a black car is at the curb. Dante is in the back seat.
+
+“What’s inside the envelope?”`,
+    choices: [
+      { label: "“I don’t know.” Keep it closed. Say you’re late for work.", to: "elevator", fx: s => { s.secrets += 1; } },
+      { label: "Open it with him, right here in the car.", to: "tape", fx: s => { s.trust += 1; s.f.opened = true; } }
+    ]
+  },
+  elevator: {
+    act: 2, ch: "9–10", pov: "HER", title: "Best Actress Goes To… Me",
+    text: `At your office the elevator shudders and stops between floors. Anton lowers his hand from the emergency switch.
+
+“Sixty seconds before maintenance responds. Why were you at the bank?”
+
+“To get money.”
+
+“You went in empty handed and came out clutching this like a newborn.” He takes the envelope from you. For one second his fingers trace your jaw. “Don’t move into his penthouse, Layla. In there I can’t protect you.”
+
+Then he is gone through the ceiling hatch, and you are alone with one thing he missed: a small cassette, which you slid out of the envelope and hid in your underwear.
+
+You wake up in Dante’s bed. He tells you the doctor said shock. He tells you the robber got away.
+
+Later he finds the tape himself. There are ropes involved, and you don’t entirely mind.
+
+“You were trying to hide it from me, though,” he says. “Bad girl.”`,
+    choices: [{ label: "Continue", to: "him1" }]
+  },
+  tape: {
+    act: 2, ch: "8–11", pov: "HER", title: "A Voice From the Grave",
+    text: `Files. Photographs. A small cassette.
+
+Dante’s driver finds a player. Your father’s voice fills the car and your eyes sting.
+
+He says he loves you. He says to be careful. He says Dante DeLuca’s name, and Dante’s eyebrows lift.
+
+“I hardly knew him,” Dante says quietly.
+
+“He says there are more recordings.”
+
+Dante closes your fingers around the tape. “Then we find them together.” He keeps the tape and gives you back the files. You both know why. He trusts you a little more than he did this morning, and he is still Dante DeLuca.
+
+At your office that afternoon, the elevator stops between floors. Anton takes the files out of your hands. “Tell DeLuca you were robbed,” he says. “It will even be true.”`,
+    choices: [{ label: "Continue", to: "him1" }]
+  },
+  him1: {
+    act: 2, ch: "12", pov: "HIM", title: "The Treachery of a Submissive Touch",
+    text: s => `I watched her sleep and went back over the day.
+
+${s.f.truth
+      ? "She walked into my life as Marco Vasquez’s spy and told me so to my face. Nicolo thinks that makes her twice as dangerous. Maybe it does. But I have been lied to by experts my whole life, and I know what it looks like when someone decides to stop."
+      : s.f.opened
+        ? "She opened her dead father’s envelope in my car because I asked her to. Then somebody robbed her in an elevator an hour later. Somebody is watching her who isn’t me."
+        : "She hurried to the bank, then to work, got robbed, and tried to hide a tape from me. It didn’t add up. Her mother is close to Marco Vasquez. I couldn’t finish the thought."}
+
+The idea of Layla using me was too painful to look at for long. I had to be ready for it anyway.
+
+Until it could be proven, I would do whatever it took to keep her safe. I put one of my people in her office the next morning, a bright young intern named Penny.`,
+    choices: [{ label: "Back to Layla", to: "stairwell" }]
+  },
+  stairwell: {
+    act: 2, ch: "13–14", pov: "HER", title: "Walking a Thin Line",
+    decision: "What you give Marco",
+    text: s => `Your new intern, Penny, smiles too much and watches too closely.
+
+Anton catches you in the stairwell and stands close enough that you feel his breath. “That intern of yours is one of Dante’s spies. He’s not the man you think he is.”
+
+“And are you any better?”
+
+“No. But you never have to worry about me finding out the truth. I already know everything.” His voice drops. “We both have jobs to do. Do you have anything for Marco?”
+
+You do. This morning, in Dante’s home office, you saw his calendar. A meeting, after hours, very late.${s.f.truth ? " And in your purse is a folded note in Dante’s handwriting: the story he wants Marco to hear." : ""}
+
+Marco has your mother. Dante has your heart. Anton is waiting.`,
+    choices: [
+      { label: "Give him the late-night meeting.", to: "ambush", fx: s => { s.secrets += 2; s.f.gaveMeeting = true; } },
+      { label: "Give him something stale. An old shipment, already moved.", to: "stale", fx: s => { s.nerve += 1; s.anton += 1; } },
+      { label: "Give him exactly what Dante wrote.", to: "trap", show: s => !!s.f.truth, fx: s => { s.trust += 1; } }
+    ]
+  },
+  ambush: {
+    act: 2, ch: "14–17", pov: "HER", title: "What Have I Done?",
+    text: `“I’ll pass it along to Marco,” Anton says.
+
+On the night of the gala you wear deep red. Dante looks at you like he might cancel the whole evening.
+
+Masked men take him in the corridor. One backhands you to the floor. You run after them anyway, heels in your hand, down to the parking deck where a van is waiting.
+
+Then a second van. Nicolo. Gunfire. You press yourself behind a pillar until it stops.
+
+One of the attackers is still alive. Dante’s men hold him over the edge of the deck. He swears he doesn’t know who hired them.
+
+“Let him go,” Nicolo says. They do.
+
+Dante’s knuckles are split. “I’m sorry you had to see that.” He holds you while you shake.
+
+You shake because you know who sent them. You did. He nearly died tonight because of one sentence you said in a stairwell.`,
+    choices: [{ label: "Go home with him", to: "bathroom" }]
+  },
+  stale: {
+    act: 2, ch: "14", pov: "HER", title: "A Lie So Good",
+    text: `You give Anton a warehouse that was emptied a week ago.
+
+Two days later a photo arrives on your phone. Your mother’s face, a fresh bruise, a newspaper held under her chin.
+
+Anton finds you in the stairwell again. He doesn’t touch you this time. “He knows it was worthless. I told him DeLuca moved the goods early.” He looks tired. “Next time I can’t cover for you.”
+
+“Why did you cover for me this time?”
+
+He doesn’t answer.
+
+Nobody ambushes Dante at the gala that week. You wear deep red and he tells you he is the luckiest man in the world. You have bought that night with your mother’s face.`,
+    choices: [{ label: "Continue", to: "bathroom" }]
+  },
+  trap: {
+    act: 2, ch: "14–17", pov: "HER", title: "The Line He Wrote",
+    text: `You recite it to Anton word for word. A meeting, after hours, very late.
+
+Anton studies you. “That was easy.”
+
+“I live in his house. It’s supposed to be easy.”
+
+On the night, Marco’s hired men walk into an empty parking deck and find Nicolo waiting with a dozen guns. It is over in less than a minute. Dante never leaves the gala. He stands beside you in the ballroom with his hand on your back while his phone buzzes once in his pocket.
+
+“It’s done,” he says against your ear. “Good girl.”
+
+You smile for the cameras. Men are dead, and you chose the sentence that put them there. You are in this now.`,
+    choices: [{ label: "Continue", to: "bathroom" }]
+  },
+  bathroom: {
+    act: 2, ch: "17–21", pov: "HER", title: "Cornered and Alone",
+    decision: "Tied up beside Sophia",
+    text: `Nicolo says it at dinner, in front of everyone. “Trust shouldn’t just be given. It has to be earned.”
+
+“I trust her,” Dante says. But you see the flicker.
+
+At the next gala, Sophia’s friends follow you into the ladies’ room. It gets ugly fast. Then the door opens and Penny walks in, and behind her come women dressed in black. The last thing you smell is something sickly sweet.
+
+You wake on a cold floor, bound and gagged. Sophia is tied beside you, eyes wide.
+
+Penny holds up a phone. “Smile for the camera, girls. Daddy’s watching.” To the screen she says, “Don’t you recognize your own daughter?”
+
+She wants ten million each. Then you hear a second name, Special Agent Dobkin, and you understand. Penny is the federal agent’s pawn, and you and Sophia are what she’s bargaining with.
+
+Penny steps out. The knot at your wrists has a little give.`,
+    choices: [
+      { label: "Work your hands free and untie Sophia first.", to: "rescue", fx: s => { s.sophia += 1; s.f.freed = true; } },
+      { label: "Get the gag loose and keep Penny talking when she returns.", to: "rescue", fx: s => { s.nerve += 1; s.f.talked = true; } },
+      { label: "Stay still. He will come.", to: "rescue", fx: s => { s.trust += 1; } }
+    ]
+  },
+  rescue: {
+    act: 2, ch: "22–23", pov: "HER", title: "The Reckoning",
+    decision: "The secret you’re carrying",
+    text: s => `${s.f.freed
+      ? "Sophia’s hands are shaking when the rope comes off. She looks at you as if she has never seen you before. “Why would you do me first?” You don’t have an answer she would believe."
+      : s.f.talked
+        ? "Penny talks. Her mother was an informant. Dobkin raised her for this. She says Dante DeLuca’s world always ends with bloody hands. You keep her talking for eleven minutes, and it is long enough."
+        : "You count your breaths. You get to four hundred."}
+
+The door comes off its hinges. Dante is in body armor, and he doesn’t say a word. He gathers Sophia with one arm and you with the other.
+
+Penny and Dobkin are gone.
+
+“She is not my daughter,” he says later, through his teeth. “Whatever she told you.”
+
+You ask to go home. He refuses. In the morning you hear him on the phone with your boss, who calls him *Dante*, and you realize he was arranging your life before you ever met him.
+
+You barely make it to the bathroom. Afterward you count back. More than six weeks.
+
+You are pregnant.
+
+When you come out he is waiting. “I heard you getting sick.”`,
+    choices: [
+      { label: "Tell him about the baby.", to: "cage", fx: s => { s.trust += 2; s.f.toldBaby = true; } },
+      { label: "“Just the painkillers. It’ll pass.”", to: "cage", fx: s => { s.secrets += 1; } }
+    ]
+  },
+
+  /* ───────────── ACT 3 ───────────── */
+  cage: {
+    act: 3, ch: "23–25", pov: "HER", title: "Mother and Daughter",
+    decision: "Anton’s price for the files",
+    text: s => `${s.f.toldBaby
+      ? "Dante puts both hands on your stomach and for a moment he is not a kingpin at all. Then he triples your security. You can’t walk to the kitchen alone."
+      : "“Sometimes love isn’t enough, Dante,” you tell him. “Sometimes it’s the very thing that hurts us the most.” He lets you have your distance. It costs him."}
+
+A thin-lipped butler with sour breath offers to get you out unseen. You don’t trust him and you go anyway.
+
+In a warehouse across town, behind armed guards, your mother sits in a room dressed up like a hotel suite. She is thinner. She holds your face. “Do what he asks a little longer, baby. I’m working on something.”
+
+You need your father’s files. Anton has them.
+
+He is waiting at the bottom of the stairwell at noon, and he pats the flank of his jacket. “Right here. But I want something first.”
+
+“What?”
+
+“A kiss. One, and they’re yours.”`,
+    choices: [
+      { label: "Kiss him. Get the files.", to: "clinic", fx: s => { s.anton += 1; s.f.kissed = true; } },
+      { label: "“Hand them over, or I tell Marco who really has them.”", to: "clinic", fx: s => { s.nerve += 1; } }
+    ]
+  },
+  clinic: {
+    act: 3, ch: "25–27", pov: "HER", title: "Uncle Caleb",
+    decision: "Tamika’s offer",
+    text: s => `${s.f.kissed
+      ? "It is not the peck you intended. He gives you the files without a word and you both pretend your hands are steady."
+      : "For a second you think he’ll call your bluff. Then he laughs, once, and puts the files in your hands. “There she is,” he says."}
+
+Olivia, an old colleague of your father’s, helps you read them. “Your father knew too much,” she says. “It made him a target.”
+
+One name in his handwriting stops you. *Caleb Ducret.* He is the Creole boss who runs the east side, and he is your friend Tamika’s uncle.
+
+Tamika runs a free clinic. She confirms the pregnancy and then she listens to everything.
+
+“Caleb’s big enough to take on Marco and DeLuca both,” she says. “But he comes with strings, usually bloody ones.” She takes your hands. “Or I get you a new name and a bus to Ohio tonight. Your mama made her own bed, Lay. You’ve got somebody else to think about now.”`,
+    choices: [
+      { label: "“Call your uncle.”", to: "taken", fx: s => { s.nerve += 1; s.f.caleb = true; } },
+      { label: "“I’m going home. Dante needs to hear all of this from me.”", to: "taken", fx: s => { s.trust += 1; } },
+      { label: "Take the new name. Go tonight.", to: "end_ohio" }
+    ]
+  },
+  taken: {
+    act: 3, ch: "27", pov: "HER", title: "Angel of Death",
+    text: s => `It is a few blocks to the nearest taxi. Three men peel off a wall and follow.
+
+You run. You scream for Tamika. You almost reach her door.
+
+Chloroform again. Burlap. An engine.
+
+When they dump you out under floodlights, somewhere in the woods upstate, Sophia DeLuca is looking down at you.
+
+${s.f.toldBaby
+      ? "“He tripled your guards for that thing you’re carrying,” she says. “So I waited for the one hour you gave them the slip.”"
+      : "“A maid found your pregnancy test,” she says. “I pay well for information.”"}
+
+${s.f.freed
+      ? "Her voice wavers. “You untied me first, in that room. I haven’t forgotten.” She looks away. “That’s why I told them to make it quick.”"
+      : "“You were never going to give him an heir. Not you.”"}
+
+She gets back in her Maserati. Her men raise their guns.
+
+The first shot is not theirs. The man nearest you drops, and then the others. Then it is quiet under the pines.
+
+Heavy, unhurried footsteps. Anton walks into the light and looks at the bodies without interest.
+
+“Now,” he says. “Are you ready to die?”`,
+    choices: [{ label: "Continue", to: "him2" }]
+  },
+  him2: {
+    act: 3, ch: "28–36", pov: "HIM", title: "She’s Gone",
+    text: s => `Two detectives drove me upstate. They showed me a clearing full of dead men, and a small shape near the tree line in clothes I would have known anywhere.
+
+The forensics report sat on my desk for an hour before I could open it.
+
+${s.f.toldBaby ? "I had held my hands against her stomach. I had started choosing names." : "Her friend Tamika told me about the baby. I learned I was going to be a father from a stranger, a week after I buried the mother."}
+
+Then I found Sophia’s Maserati on a security camera, 2:35 PM, in a neighborhood my daughter had no business in. Caleb Ducret’s people put names to the men she hired.
+
+I disinherited my only child that night. My hand didn’t shake until she had left the room.
+
+At the memorial, Layla’s mother spoke. “My daughter was a fighter,” she said. Her voice was steady. Her eyes were dry.
+
+Someone had pulled Layla out of those woods. I intended to find out who.`,
+    choices: [{ label: "Back to Layla", to: "ship" }]
+  },
+  ship: {
+    act: 3, ch: "29–34", pov: "HER", title: "Life After Death",
+    decision: "On the ship",
+    text: `You wake to blue water and the smell of salt. You are on a ship.
+
+Anton staged it all. A body, your clothes, a report. Your mother arranged the rest.
+
+“Layla Jennings is dead,” he says on the top deck. “Dead women don’t get hunted.”
+
+“Dante thinks I’m dead. He thinks his *child* is dead.”
+
+“Your mother gave everything she had left to buy you this. It was the last thing she could do for you.” When your knees give, he carries you to your cabin. “I will protect you and your baby for as long as you need.”
+
+That night you wake from a nightmare with his arms around you. “Who are you, really?” you ask.
+
+“One day I’ll tell you everything.”
+
+The captain’s satellite phone sits in an unlocked drawer on the bridge. You could reach it during the watch change.`,
+    choices: [
+      { label: "Take the phone. Ten seconds on Dante’s voicemail.", to: "island", fx: s => { s.trust += 1; s.f.voicemail = true; } },
+      { label: "Leave it. Let the quiet have you for a while.", to: "island", fx: s => { s.anton += 1; } }
+    ]
+  },
+  island: {
+    act: 3, ch: "37", pov: "HER", title: "An Afternoon of Pretend",
+    decision: "At the chalet door",
+    text: s => `${s.f.voicemail ? "“I’m alive. We both are. Don’t trust Sophia.” You hang up before the trace can run, and put the phone back with shaking hands.\n\n" : ""}St. Thomas. A chalet above the water. Weeks pass, and your body changes.
+
+One afternoon you explore the island by yourself: a café, tea and a croissant, the art galleries on Main Street. Anton finds you by the harbor and, for once, he doesn’t steer you home. He buys you a mango. He laughs at something you say, and you realize you have never heard him laugh.
+
+For one afternoon the two of you pretend. A couple on holiday, no one hunting them.
+
+On the walk back he goes quiet. The closer you get to the chalet, the farther he drifts from your side. He stops a good distance from your front door.
+
+It was Anton who pulled you out of those woods, and it is Anton who watches over you now.`,
+    choices: [
+      { label: "Give him a small wave goodnight. It was only pretend.", to: "shore" },
+      { label: "Walk back down the path and kiss him.", to: "shore", fx: s => { s.anton += 2; s.f.islandKiss = true; } }
+    ]
+  },
+  shore: {
+    act: 3, ch: "38–40", pov: "HER", title: "Lost in the Taste of Her",
+    decision: "Two men on the shore",
+    text: s => `Back in the city, Marco’s men trace a phone number to St. Thomas. “Gather the men,” he tells them. “And bring Angela. It’s time for a family reunion.”
+
+You don’t know any of that. You are standing in the surf with the water around your ankles.
+
+“Layla!” Anton calls from up the beach, and you turn, smiling.
+
+Then you see the other man walking toward you from the road, and your heart climbs into your throat.
+
+“Dante?”
+
+${s.f.voicemail ? "“I played ten seconds of your voice four hundred times,” he says." : "He looks at you like he is seeing a ghost."} His face is hard. “Is it true? Are you pregnant with my child?”
+
+Anton has stopped a few yards behind you. He does not reach for you, and he does not leave.`,
+    choices: [
+      { label: "Go to Dante.", to: "chalet" },
+      { label: "Step back to Anton’s side.", to: "end_harbor", show: s => s.anton >= 3 }
+    ]
+  },
+  chalet: {
+    act: 3, ch: "40–41", pov: "HER", title: "Shame and Regret",
+    text: `“Yes,” you tell him. “Yes.”
+
+His anger lasts until he touches you. After that neither of you says anything for a long time.
+
+Afterward you tell him about the woods. “Sophia tried to have me killed. I thought disappearing was the only way to keep our baby safe.”
+
+“I know. I’ve disinherited her. She won’t be a danger to you again.” Then, harder: “But if you hadn’t gone out without the security I gave you, she never would have had the chance.”
+
+You are still arguing when the windows blow in.
+
+Fire. The chalet folds in on itself. You are dragged out through the smoke by men you don’t know. You scream for Dante and for Anton, and neither one answers.
+
+A familiar voice behind you. “You should have played your part, Layla.”
+
+Marco is smiling. “Betrayal comes with consequences. You and your mother will pay me back every cent.”
+
+You look him in the eye and make yourself a promise. You will live through whatever he has planned. Then you will end him.`,
+    choices: [{ label: "Continue", to: "auction" }]
+  },
+
+  /* ───────────── ACT 4 ───────────── */
+  auction: {
+    act: 4, ch: "42–45", pov: "HER", title: "Going Once, Twice… Sold",
+    decision: "Inside the shipping crate",
+    text: `On Marco’s plane your mother sits hunched over a bandaged hand. He has taken one of her fingers.
+
+The auction is held in a warehouse under a single spotlight. “A rare gem,” Marco tells the room. Your mother is made to watch.
+
+A Russian named Maxim pays fifteen million dollars.
+
+They put you in a shipping crate with dozens of women and girls. It is dark and it stinks of fear. Someone pushes a pack into your hands with a water bottle and some food.
+
+A girl beside you, sixteen at most, is crying without making a sound. Her name is Natasha.
+
+You believe Dante and Anton died in the fire, so no one is coming. You have the baby, your own two hands, and a girl who has decided to trust you.
+
+The crate will be opened once, at the docks in Cape Town.`,
+    choices: [
+      { label: "Organize the women. When the doors open, everyone runs at once.", to: "him3", fx: s => { s.nerve += 2; s.f.breakout = true; } },
+      { label: "Ration the water. Keep Natasha close. Save your strength.", to: "him3", fx: s => { s.f.rationed = true; } }
+    ]
+  },
+  him3: {
+    act: 4, ch: "43–47", pov: "HIM", title: "Whispers and Dreams",
+    text: `I woke in a hospital in the Virgin Islands with bandages around my chest and three days missing.
+
+More than three days were missing.
+
+“You came here to help a woman named Layla,” my daughter told me. “She almost got you killed.” I searched for the name and found nothing there.
+
+At home there was a woman’s sweater on a chair and a silver-framed photograph by my bed. I didn’t know the face. I couldn’t stop looking at it.
+
+Nicolo told me the rest, and it cost him to say it. “Layla loves you more than life itself. It is Sophia who has been lying to you.”
+
+We found Marco Vasquez. Nicolo went to work. It took a long time.
+
+“Sold,” Marco said at the end. “To Maxim. A crate docking in Cape Town, bound for Russia.” He also told me she had been his spy from the first night.
+
+“This is for Layla,” I said, and I did not know yet whether I meant it as love or as a debt.
+
+I didn’t notice her mother slip out the door.`,
+    choices: [{ label: "Back to Layla", to: "capetown" }]
+  },
+  capetown: {
+    act: 4, ch: "47–48", pov: "HER", title: "A Price to Pay",
+    decision: "“Are you Marco’s spy?”",
+    text: s => `${s.f.breakout
+      ? "When the doors open at Cape Town, forty women run. Eleven of them reach the gate. You and Natasha are not among them, but Maxim’s men are too busy counting what they lost to punish you."
+      : "When the doors open at Cape Town, the light hurts. You and Natasha walk out holding hands."}
+
+Maxim learns whose child you are carrying and decides you are worth more as a trade.
+
+The exchange is in a crowded public square. You see Dante coming through the crowd, alive, and your knees nearly give.
+
+Then he looks at you, and there is nothing in his face. He doesn’t know you.
+
+“Are you Marco’s spy?” No emotion at all. “Were you working with him all along, playing me for a fool?”
+
+Nicolo stands at his shoulder. Maxim is smiling. Natasha’s hand is cold in yours.`,
+    choices: [
+      { label: "“He sent me. I chose you anyway.”", to: "price", fx: s => { s.trust += s.f.truth ? 2 : 1; s.f.owned = true; } },
+      { label: "“No. I would never betray you.”", to: "price", fx: s => { s.trust -= 1; s.secrets += 1; s.f.denied = true; } },
+      { label: "Say nothing. Take his hand and put it on your belly.", to: "price", fx: s => { s.nerve += 1; s.f.silent = true; } }
+    ]
+  },
+  price: {
+    act: 4, ch: "48–52", pov: "HER", title: "Name Your Price",
+    decision: "His offer",
+    text: s => `${s.f.owned
+      ? (s.f.truth
+        ? "Nicolo clears his throat. “She told you that herself, boss, the first week. You wrote her lines for her.” Dante’s eyes move over your face as if he is trying to read handwriting he half remembers."
+        : "Something moves behind his eyes. It isn’t recognition, but he seems to respect that you didn’t dress it up.")
+      : s.f.denied
+        ? "“Do you believe you can still lie to my face?” His grip on your arm hurts. “Marco told me himself.”"
+        : "His palm rests there a second too long. Then he takes it back as if it burned him."}
+
+“The only reason you are still alive, Ms. Jennings, is because you carry my child.”
+
+He deals with Maxim in Russian. When it is done he has his arm around Natasha, and Nicolo puts you on a jet alone. Only later do you learn he took the girl somewhere safe.
+
+At home a doctor turns up the monitor and you hear two heartbeats. You are having twins.
+
+Dante comes that night. For an hour it is the two of you again. Then he turns his back.
+
+“I will not let a woman I cannot trust raise my child. Name your price, Layla. Or I bury you in the courts.”`,
+    choices: [
+      { label: "Write your terms. A house. A stipend. His signature.", to: "callahan", fx: s => { s.nerve += 1; s.f.termsWritten = true; } },
+      { label: "“There is no price.” Then call Tamika about that new name.", to: "callahan", fx: s => { s.secrets += 1; s.f.papers = true; } }
+    ]
+  },
+  callahan: {
+    act: 4, ch: "52–57", pov: "HER", title: "A Darker and Deeper Despair",
+    decision: "Outside the jail",
+    text: s => `${s.f.termsWritten
+      ? "He reads your list twice: a house, a stipend, a housekeeper, life insurance. “I’ll have my lawyer draw it up.” You think he is disappointed that you only asked for money."
+      : "Tamika starts on the papers. You tell Dante nothing and count the days."}
+
+Your mother has been missing since Marco died. A lawyer named Ethan Callahan calls. His father was your father’s friend. Together you search Marco’s old warehouse, and in your mother’s abandoned room you find a scrap of paper with one word on it: *Siracusa.*
+
+A large man fills the doorway. “Special Agent Richard Dobkin, FBI.” He has you in cuffs before Ethan can finish a sentence.
+
+You spend a night in a solitary cell. A guard waves a magazine photo of you and Dante. “How the mighty have fallen, princess.”
+
+In the morning a lawyer you have never met gets every charge dismissed. He nods once across the courtroom to Dante, who leaves without looking at you.
+
+Outside, Ethan is waiting. So is a black car with its rear door open.
+
+“If you want me to take you with me, I will,” Ethan says.`,
+    choices: [
+      { label: "Get in Dante’s car.", to: s => coldCheck(s) ? "end_arrangement" : "house", fx: s => { s.trust += 1; } },
+      { label: "Go with Ethan. Find out what Siracusa means.", to: s => coldCheck(s) ? "end_arrangement" : "house", fx: s => { s.nerve += 1; s.f.ethan = true; } }
+    ]
+  },
+  house: {
+    act: 4, ch: "57–59", pov: "HER", title: "Not For a Million Mansions",
+    decision: "No more secrets?",
+    text: s => `${s.f.ethan
+      ? "Ethan digs for three days. Siracusa is a city in Sicily. He thinks it is also a family name, and promises to call when he knows more."
+      : "The ride is silent. But the driver has been told to stop for anything you want, and there is a blanket folded on the seat."}
+
+Then your phone rings.
+
+“Layla.” Dante’s voice is thick. “I need you.”
+
+Your whole body answers. Then he goes on: “I need you to come look at a house.”
+
+It sits in the countryside outside the city, with gardens and a big kitchen. Anyone can see it is a place for a family.
+
+He tells you there, standing in the empty nursery. The explosion took his memory. Sophia filled the gap with lies. “I was so lost. I didn’t know if I could trust you. But there are flashes, and they make me believe I must have loved you deeply.”
+
+“You did,” you whisper.
+
+“Then I have a serious question. Do you like the house? Because I already bought it.”
+
+He is waiting for more than an answer about the house.`,
+    choices: [
+      { label: "Tell him everything. The twins. Tamika’s papers. Every last secret.", to: "witness", fx: s => { s.trust += 2; s.secrets = 0; s.f.clean = true; } },
+      { label: "Tell him about the twins. Keep the escape plan as a last resort.", to: "witness", fx: s => { s.trust += 1; s.secrets += 1; } }
+    ]
+  },
+
+  /* ───────────── ACT 5 ───────────── */
+  witness: {
+    act: 5, ch: "59–61", pov: "HER", title: "Loyalty to Who?",
+    decision: "Your mother, the witness",
+    text: s => `${s.f.clean
+      ? "“Twins,” he says, and sits down on the nursery floor. He laughs until his eyes are wet. Then he asks to see Tamika’s papers, reads them, and hands them back. “Keep them. I want you to stay because you want to.”"
+      : "“Twins.” He sits down on the nursery floor and laughs until his eyes are wet. You keep one hand on your purse, where the other papers are."}
+
+For a few weeks you are happy. He bakes badly, with flour on his cheek.
+
+Then his phone buzzes. “Shit.”
+
+On the news your mother, bandaged and pale, is being walked to an SUV by armed guards. Angela Jennings has turned state’s evidence. She is a material witness to Marco’s murder, and she saw Dante pull the trigger.
+
+Dante has to go to ground. On the video call you beg him. “Promise me you won’t hurt her.”
+
+He won’t lie to you. “I promise I’ll give you a chance to talk to her.” Then: “I love you, Layla.”
+
+Tamika calls. “You can still run, you know.”
+
+Anton knows where your mother is being held. He refuses to take you.`,
+    choices: [
+      { label: "Go find her yourself.", to: "cab", fx: s => { s.nerve += 1; s.f.wentOut = true; } },
+      { label: "Stay behind Dante’s guards. Make Anton carry a letter to her.", to: "hospital", fx: s => { s.trust += 1; } }
+    ]
+  },
+  cab: {
+    act: 5, ch: "61–62", pov: "HER", title: "Life or Death",
+    text: `The cab stops at a red light and all four doors open.
+
+Two men drag the driver out. Two more climb in on either side of you. The child locks click.
+
+A jagged strip of metal sticks out of the broken seat frame. You pull it free and drive it into the thigh on your right. You swing it at the face on your left, and when he flinches you get the window down and go through it into the road.
+
+You run, bleeding, until Anton’s car cuts across the curb.
+
+Later you shout at him in an empty stairwell. “She intends to blow up my family!”
+
+He grips your shoulders. “They are both playing their games. They don’t care about you, not the way I do. We could have a life, like we did on the island.”
+
+“I can’t, Anton. They need me.”
+
+Then the pain comes, low and tearing, and you fold. He catches you before you hit the floor.`,
+    choices: [{ label: "Continue", to: "hospital" }]
+  },
+  hospital: {
+    act: 5, ch: "63–67", pov: "HER", title: "Revelations and Resolutions",
+    decision: "Dante at your hospital door",
+    text: s => `${s.f.wentOut
+      ? "You wake to monitors. The doctor says surgery, tonight, to save the pregnancy. Anton sits by the bed."
+      : "Anton delivers your letter and comes back gray in the face. He sits down across from you."}
+
+“The night your father died, I was there,” he says. “So were you. You were a child, hiding. You saw who did it.”
+
+It was Marco, and Dobkin with him. Your father was about to hand over evidence against them both.
+
+${s.f.wentOut ? "After the surgery, with both babies safe, Ethan calls." : "That evening, Ethan calls."} “Siracusa is your mother’s family. An old Sicilian syndicate, at war for generations with the Tomasinos. Lucia Tomasino is Dante’s ex-wife. Sophia’s mother.”
+
+Sending you to befriend Sophia was your mother’s idea. She suggested it to Marco.
+
+On television, Angela steps up to a podium and confesses to killing Marco Vasquez herself. She walks to her car. The car explodes.
+
+“I’ve got a pulse!” someone shouts. The camera pans the crowd. Dante DeLuca is standing in it.
+
+An hour later he pushes past Anton into your room. “Layla, I went there to talk to her—”`,
+    choices: [
+      { label: "“Get out. You tried to kill her.” File the restraining order.", to: "alliance", fx: s => { s.trust -= 1; s.anton += 1; s.f.threwOut = true; } },
+      { label: "“You have one minute. Use it.”", to: "alliance", fx: s => { s.trust += 1; } }
+    ]
+  },
+  alliance: {
+    act: 5, ch: "68–72", pov: "HER", title: "An Alliance",
+    decision: "How to finish Dobkin",
+    text: s => `${s.f.threwOut
+      ? "For weeks you sit by your mother’s bed with Anton at your shoulder. At night you dream about Dante in a garden, and you wake up angry about it."
+      : "He uses the minute well. He confessed nothing and she took the blame, and he doesn’t know why. He sleeps in the hallway outside your mother’s room for a week."}
+
+Your mother wakes. “We fight, Layla,” she says. “And we bring them down, once and for all.”
+
+It is Nicolo who finds the proof. Dobkin planted the bomb. Angela has years of evidence tying him to Marco’s organization, and he could not let her live.
+
+${s.f.threwOut ? "Dante comes to the hospital in spite of the restraining order. “This is important,” he says, looking only at you. You hear him out." : "Dante stands at the foot of her bed. Your mother looks at him for a long moment and nods."}
+
+The two of them want to rule this city. That frightens you. You take his hand anyway.
+
+Your mother spreads her papers across the blanket. Documents, recordings, witness statements.
+
+“A reporter named Melissa will print all of it,” she says.
+
+“Or,” Dante says quietly, “Dobkin has an accident before the week is out.”
+
+They both look at you.`,
+    choices: [
+      { label: "“Print it. Every page.”", to: "shower", fx: s => { s.f.printed = true; s.nerve += 1; } },
+      { label: "“Do it your way, Dante.”", to: "shower", fx: s => { s.f.blood = true; s.trust += 1; } }
+    ]
+  },
+  shower: {
+    act: 5, ch: "72–75", pov: "HER", title: "It’s the Bears",
+    decision: "What becomes of Sophia",
+    text: s => `${s.f.printed
+      ? "Melissa’s exposé breaks on a Tuesday. By nightfall Dobkin is a fugitive with his own face on every screen."
+      : "Dobkin’s car is found in the river. The papers call it a tragedy. Your mother prints the evidence anyway, and it finishes his name too."}
+
+The ultrasound shows two boys.
+
+The baby shower fills the garden with pastel ribbon. Anton arrives after months away, thinner. Your mother has him merging Marco’s organization into the Siracusa. He gives you two silver ID bracelets and leaves before you can thank him.
+
+Among the gifts are two teddy bears with no card.
+
+${s.sophia >= 2
+      ? "You are lifting one out of its box when Sophia DeLuca walks through the garden gate, past her father’s guards, and knocks it out of your hands.\n\n“Don’t touch them. My mother sent them. There’s something in the fur.” She is shaking. “You untied me first. I couldn’t.”\n\nDante’s men take the bears away in sealed bags. By morning Lucia Tomasino is in handcuffs."
+      : "You hold one against your cheek. By nightfall you can’t stand. For days the specialists find nothing, and you get weaker, and so do the boys.\n\nDante hunts Sophia down and marches her into your hospital room. She goes white when she sees you. “Mother said it would only make her sick.” She gives up the poison, the antidote, and Lucia.\n\nWithin hours your color comes back. By morning Lucia Tomasino is in handcuffs."}
+
+Sophia stands in the corridor with nowhere to go. Dante will not look at her.`,
+    choices: [
+      { label: "“Leave a door open for her, Dante. She’s still your daughter.”", to: "vows", fx: s => { s.f.mercy = true; s.trust += 1; } },
+      { label: "Say nothing. Let him close it.", to: "vows", fx: s => { s.nerve += 1; } }
+    ]
+  },
+  vows: {
+    act: 5, ch: "76–80", pov: "HER", title: "Mr. & Mrs. DeLuca",
+    decision: "The last choice",
+    text: s => `Michael and Stefano arrive in the middle of the night, loud and perfect. Dante paces the hospital room with one in each arm, singing in Italian.
+
+${s.f.mercy ? "Sophia sends a card with no return address. Dante keeps it in his desk. It is a start." : "Sophia’s name is not spoken in the house."}
+
+He takes you away for three days and proposes on an empty beach with his grandmother’s ring. “She believed love was more important than power or money. I think she would have loved you.”
+
+The wedding is small. Your mother cries, and Tamika cries harder.
+
+On the honeymoon, his phone buzzes. A week after you get home, two men come over the garden wall. You lock yourself in the nursery with the boys and listen. Then Dante’s voice comes through the door. “Layla? It’s okay. You can come out now.”
+
+That night, on the porch, you say it. “We can’t live like this.”
+
+He is quiet a long time. “I could sell every piece of it. We could leave and start somewhere with no history.” He looks at you. “Or we stay. Your mother’s family and mine, at one table. No one would come over that wall again.”`,
+    choices: [
+      { label: "“Let’s go. Somewhere new.”", to: s => (s.trust >= 8 && s.secrets === 0) ? "end_goodgirl" : "end_deluca" },
+      { label: "“We stay. And we run it together.”", to: "end_queen" }
+    ]
+  },
+
+  /* ───────────── ENDINGS ───────────── */
+  end_goodgirl: {
+    act: 5, ch: "80", pov: "HER", ending: "goodgirl", title: "Good Girl",
+    text: `It takes him weeks. He calls in favors and signs the last contract.
+
+A year after the wedding, the four of you board a plane. The twins babble in their seats. Below, the city gets smaller. You were hurt there, and you were loved there.
+
+“Are you ready for this?” Dante asks.
+
+“With you? I’m ready for anything.”
+
+He studies you the way he did in a hallway once, when you were crying in a midnight blue dress and he didn’t know your name.
+
+“No secrets,” he says. “No lies. You remember the terms.”
+
+“I kept them,” you say. “Eventually.” Then, because it is true: “You have all of it now. There is nothing left you don’t know.”
+
+He lifts your hand and kisses the ring. His memory came back in pieces, and this piece came back last. He leans close so the boys won’t hear.
+
+“Good girl.”`
+  },
+  end_deluca: {
+    act: 5, ch: "80", pov: "HER", ending: "deluca", title: "Mr. & Mrs. DeLuca",
+    text: s => `It takes him weeks. He calls in favors and signs the last contract.
+
+A year after the wedding, the four of you board a plane. The twins babble in their seats. Below, the city gets smaller. You were hurt there, and you were loved there.
+
+“Are you ready for this?” Dante asks, squeezing your hand.
+
+“With you? I’m ready for anything.”
+
+${s.secrets > 0
+      ? "In the lining of your carry-on there is still a set of papers with another woman’s name on them. You haven’t needed them. You haven’t thrown them away either. You have had to learn how to survive, and you are not ready to forget it."
+      : "There were years when the two of you could not have said that to each other and meant it. You got here the long way."}
+
+The plane climbs into the clouds. You don’t know what the new place will be like. You are happy anyway.`
+  },
+  end_queen: {
+    act: 5, ch: "80", pov: "HER", ending: "queen", title: "Two Families, One Table",
+    text: s => `Your mother pours the wine herself.
+
+The Siracusa sit on the left, the DeLucas on the right. Anton stands behind Angela’s chair. Nicolo stands behind Dante’s. There is a chair at the head of the table that nobody has taken.
+
+Dante pulls it out for you.
+
+Once you were dragged out of your apartment at 10:37 at night to be someone’s spy. Now nothing moves in this city unless you allow it. No one has come over the garden wall since.
+
+${s.f.blood
+      ? "You know what that costs. You said *do it your way* once, in a hospital room, and a man went into the river. You will say it again."
+      : "You tell yourself you will run it clean. Your mother smiles when you say so. She told herself the same thing once."}
+
+Upstairs, Michael and Stefano are asleep. One day they will ask what their parents do.
+
+Dante’s hand rests on the back of your neck. “My queen,” he says.
+
+You have not decided yet what you will tell the boys.`
+  },
+  end_harbor: {
+    act: 3, ch: "39–40", pov: "HER", ending: "harbor", title: "Safe Harbor",
+    text: `You step back until your shoulder touches Anton’s chest.
+
+Dante sees it. Something goes out of his face.
+
+“The child is yours,” you tell him. “You will know them. I swear it. But I died in those woods, Dante, and the woman who walked out isn’t yours to keep.”
+
+For a moment you think he will reach for his gun. Instead he looks at Anton. “Marco lands on this island within hours. He’s bringing her mother.” His jaw works. “Get her off it.”
+
+Anton already has a boat.
+
+You hear later what happened. Dante met Marco’s plane. Your mother walked away from it, missing a finger. Marco did not walk away.
+
+You give birth in a harbor town where no one knows the name Jennings. Twice a year a package arrives with no return address: a silver rattle, a first-edition picture book, a card that only says *D.*
+
+Anton reads the boys to sleep. He never did tell you everything. He stayed, and you stopped needing him to.
+
+Some nights, though, you still dream about a hallway and a man asking you to dance.`
+  },
+  end_ohio: {
+    act: 3, ch: "26–27", pov: "HER", ending: "ohio", title: "The Girl Who Ran",
+    text: s => `The bus leaves at 11:40. Tamika presses an envelope into your hand, with a birth certificate, a Social Security card, and four hundred dollars. She doesn’t let go of you until the driver honks.
+
+You are somewhere in Pennsylvania when you stop crying.
+
+In Ohio you are a woman with a different name who works at a library and rents the top floor of a yellow house. Your child is born in the spring. ${s.f.toldBaby ? "Somewhere, a man who once held his hands against your stomach is tearing a city apart looking for you. You don’t let yourself read the news." : "Somewhere, a man who never knew is going on with his life. You tell yourself that is a kindness."}
+
+You never learn what happened to your mother. You look for her name in the papers for years and never find it.
+
+You are safe, and so is your baby. That is what you chose. On most days you think it was enough.
+
+On the others, you stand at the window after dark, saying a name you don’t use anymore.`
+  },
+  end_arrangement: {
+    act: 4, ch: "50–58", pov: "HER", ending: "arrangement", title: "The Arrangement",
+    text: s => `The phone call never comes. He never says he needs you.
+
+A lawyer delivers the keys. The house is in the countryside, with gardens and a kitchen big enough for a family. Your name is on the deed, and a custody schedule is stapled to it.
+
+Dante’s memory comes back in pieces. Each piece is something you hid from him. ${s.f.opened ? "" : "The envelope. "}The stairwell. ${s.f.gaveMeeting ? "The meeting that nearly killed him. " : ""}${s.f.toldBaby ? "" : "The baby. "}He finds the last of it in Marco’s own files.
+
+“I believe that you loved me,” he says, once, at the door. “I believe you lied to me every day you did it. I can’t build on that.”
+
+He comes every Sunday. He is gentle with the boys and polite to you. He provides everything he promised in writing and nothing else.
+
+He never again tells you a secret, and he never again calls you his good girl.
+
+You have a house and an income, and your sons are safe. You named your price, he paid it, and you are still paying yours.`
+  }
+};
+
+/* The cold ending: too many lies and too little trust by the time his memory returns. */
+function coldCheck(s) { return s.secrets >= 6 && s.trust <= 1; }
+
+
+
+(function () {
+  const $ = id => document.getElementById(id);
+  const view = $("view"), panel = $("panel"), panelIn = $("panel-in");
+  const fresh = () => ({ trust: 0, secrets: 0, anton: 0, nerve: 0, sophia: 0, f: {} });
+  const clone = o => JSON.parse(JSON.stringify(o));
+  let st = { id: null, s: fresh(), hist: [], log: {} };
+  let found = [];
+  let confirmRestart = false;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(CONFIG.SAVE_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.found)) found = d.found.filter(k => ENDINGS[k]);
+      if (d.st && d.st.id && STORY[d.st.id]) st.saved = d.st;
+    } catch (e) {}
+  }
+  function save() {
+    try {
+      const keep = st.id ? { id: st.id, s: st.s, hist: st.hist, log: st.log } : (st.saved || null);
+      localStorage.setItem(CONFIG.SAVE_KEY, JSON.stringify({ found, st: keep }));
+    } catch (e) {}
+  }
+
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const fmt = t => esc(t).replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  const paras = t => t.split(/\n\n+/).filter(p => p.trim()).map(p => "<p>" + fmt(p.trim()) + "</p>").join("");
+  const bookBtn = () => CONFIG.BOOK_URL ? '<a class="cta ghost" href="' + esc(CONFIG.BOOK_URL) + '" target="_blank" rel="noopener">Read the full novel</a>' : "";
+
+  function drawActs(n) {
+    $("acts").innerHTML = ACTS.map(a => '<i class="' + (a.n <= n ? "on" : "") + '"></i>').join("");
+  }
+
+  function render(focus) {
+    $("btn-back").disabled = !st.id || st.hist.length === 0;
+    if (!st.id) return cover();
+    const n = STORY[st.id];
+    drawActs(n.act);
+    const act = ACTS[n.act - 1];
+    const text = typeof n.text === "function" ? n.text(st.s) : n.text;
+    let html = "";
+    if (n.ending) {
+      const e = ENDINGS[n.ending];
+      if (!found.includes(n.ending)) { found.push(n.ending); }
+      html += '<div class="eyebrow"><span class="end-kind">Ending</span><span>' + esc(e.kind) + "</span></div>";
+      html += '<h1 class="end-title" tabindex="-1" id="head">' + esc(e.name) + "</h1>";
+      html += '<div class="prose">' + paras(text) + "</div><hr class=\"rule\">";
+      html += '<p class="tally">You have found <b>' + found.length + " of " + Object.keys(ENDINGS).length + "</b> endings.</p>";
+      html += '<div class="cta-row"><button class="cta" type="button" data-do="again">Play again</button>' +
+        '<button class="cta ghost" type="button" data-do="back">Change your last choice</button>' +
+        '<button class="cta ghost" type="button" data-do="map">See your path</button>' + bookBtn() + "</div>";
+    } else {
+      const him = n.pov === "HIM";
+      html += '<div class="eyebrow"><span class="pov' + (him ? " him" : "") + '">' + n.pov + "</span><span>Act " + n.act + " · " + esc(act.name) + "</span><span>From chapter" + (/[–,]/.test(n.ch) ? "s " : " ") + esc(n.ch) + "</span></div>";
+      html += '<h1 class="scene-title" tabindex="-1" id="head">' + esc(n.title) + "</h1>";
+      html += '<div class="prose">' + paras(text) + "</div>";
+      const cs = n.choices.map((c, i) => ({ c, i })).filter(x => !x.c.show || x.c.show(st.s));
+      html += '<div class="choices">';
+      if (cs.length > 1) html += '<div class="prompt">' + (him ? "" : "What do you do?") + "</div>";
+      html += cs.map(x => '<button type="button" class="choice' + (cs.length === 1 ? " next" : "") + '" data-i="' + x.i + '">' + fmt(x.c.label) + (cs.length === 1 ? " →" : "") + "</button>").join("");
+      html += "</div>";
+    }
+    view.className = "view fade" + (n.pov === "HIM" ? " him-scene" : "");
+    view.innerHTML = html;
+    save();
+    if (focus) { window.scrollTo(0, 0); const h = $("head"); if (h) h.focus({ preventScroll: true }); }
+    if (listening) speakScene();
+  }
+
+  function cover() {
+    stopSpeech();
+    drawActs(0);
+    const canResume = !!st.saved;
+    view.className = "view cover fade";
+    view.innerHTML =
+      '<div class="eyebrow"><span class="pov">HER</span><span>An interactive romance</span></div>' +
+      "<h1 id=\"head\" tabindex=\"-1\">Mafia Daddy’s Captivating <em>Good Girl</em></h1>" +
+      '<div class="byline">Krystal Silvers</div>' +
+      '<p class="lede">At 10:37 one night, two men break down your door. By midnight you are in a midnight blue dress at a charity gala, sent to spy on the most dangerous man in the city. Then a stranger asks you to dance.</p>' +
+      '<ul class="facts"><li>You play <b>Layla</b></li><li><b>5</b> acts</li><li><b>6</b> endings</li><li>About <b>20</b> minutes</li></ul>' +
+      '<div class="cta-row">' +
+      (canResume ? '<button class="cta" type="button" data-do="resume">Continue</button><button class="cta ghost" type="button" data-do="begin">Start over</button>'
+                 : '<button class="cta" type="button" data-do="begin">Begin</button>') +
+      (found.length ? '<button class="cta ghost" type="button" data-do="map">Endings found: ' + found.length + " of " + Object.keys(ENDINGS).length + "</button>" : "") +
+      bookBtn() + "</div>" +
+      '<p class="note">For adult readers. This story contains violence, captivity and mature themes. Your choices are saved on this device. Press Listen at the top to have each scene read aloud.</p>';
+  }
+
+  function begin() { st = { id: "knock", s: fresh(), hist: [], log: {} }; confirmRestart = false; render(true); }
+  function resume() { const d = st.saved; st = { id: d.id, s: d.s, hist: d.hist || [], log: d.log || {} }; render(true); }
+  function back() {
+    if (!st.hist.length) return;
+    const p = st.hist.pop();
+    delete st.log[p.id];
+    st.id = p.id; st.s = p.s;
+    render(true);
+  }
+  function choose(i) {
+    const n = STORY[st.id], c = n.choices[i];
+    if (!c) return;
+    st.hist.push({ id: st.id, s: clone(st.s) });
+    if (c.fx) c.fx(st.s);
+    if (n.decision) st.log[st.id] = c.label;
+    st.id = typeof c.to === "function" ? c.to(st.s) : c.to;
+    render(true);
+  }
+
+
+  /* ── read-aloud: the reader's own device voices. The page looks for the most natural American voices installed
+        (names marked Natural, Neural, Enhanced or Premium), a woman's for Layla's scenes and a man's for Dante's.
+        Readers can also pick voices themselves in the Map panel. ── */
+  const synth = ("speechSynthesis" in window && "SpeechSynthesisUtterance" in window) ? window.speechSynthesis : null;
+  let listening = false, voices = [], speakRun = 0, voicePref = { her: "", him: "", rate: 1.2 };
+  const SPEEDS = [[0.9, "Slower"], [1, "Normal"], [1.2, "Brisk"], [1.4, "Fast"], [1.6, "Very fast"]];
+  const speed = () => voicePref.rate || 1.2;
+  const QUALITY = /natural|neural|premium|enhanced|online|siri/i;
+  const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|wobble|zarvox|trinoids|whisper|jester|organ|superstar|good news|ralph|junior|kathy|grandma|grandpa|eddy|\bflo\b|reed|rocko|sandy|shelley|\bfred\b|espeak|compact/i;
+  const HER_NAMES = /\b(ava|emma|jenny|aria|michelle|ana|sara|jane|nancy|samantha|allison|susan|zoe|joelle|noelle|zira|joanna|salli|kendra|kimberly|nicky|female)\b|google us english/i;
+  const HIM_NAMES = /\b(andrew|brian|christopher|eric|guy|roger|steffan|davis|tony|jason|evan|nathan|tom|aaron|alex|david|mark|matthew|joey|justin|male)\b/i;
+  const isMale = v => HIM_NAMES.test(v.name) && !/female/i.test(v.name);
+  const isFemale = v => HER_NAMES.test(v.name) && !isMale(v);
+  function score(v, him) {
+    let n = 0;
+    if (/^en[-_]US/i.test(v.lang)) n += 100; else if (/^en/i.test(v.lang)) n += 10; else return -999;
+    if (QUALITY.test(v.name)) n += 50;
+    if (NOVELTY.test(v.name)) n -= 80;
+    if (him) { if (isMale(v)) n += 200; else if (isFemale(v)) n -= 40; }
+    else { if (isFemale(v)) n += 200; else if (isMale(v)) n -= 200; }
+    return n;
+  }
+  function loadVoices() { try { voices = synth.getVoices() || []; } catch (e) { voices = []; } }
+  function ranked(him) {
+    return voices.filter(v => /^en/i.test(v.lang)).map(v => ({ v, n: score(v, him) })).sort((x, y) => y.n - x.n).map(x => x.v);
+  }
+  function pickVoice(him) {
+    const want = him ? voicePref.him : voicePref.her;
+    const chosen = want && voices.find(v => v.name === want);
+    if (chosen) return { voice: chosen, pitch: 1, rate: speed() };
+    const best = ranked(him)[0] || null;
+    /* No man's voice on this device: lower the pitch of the best voice instead. */
+    if (him && best && !isMale(best)) return { voice: best, pitch: 0.6, rate: speed() * 0.95 };
+    return { voice: best, pitch: 1, rate: speed() };
+  }
+  function loadVoicePref() { try { const d = JSON.parse(localStorage.getItem(CONFIG.SAVE_KEY + "-voices") || "{}"); voicePref = { her: d.her || "", him: d.him || "", rate: +d.rate || 1.2 }; } catch (e) {} }
+  function saveVoicePref() { try { localStorage.setItem(CONFIG.SAVE_KEY + "-voices", JSON.stringify(voicePref)); } catch (e) {} }
+  function stopSpeech() { speakRun++; if (synth) { try { synth.cancel(); } catch (e) {} } }
+  function say(lines, him) {
+    stopSpeech();
+    const run = speakRun, cfg = pickVoice(him);
+    setTimeout(() => {
+      if (run !== speakRun) return;
+      lines.filter(Boolean).forEach(text => {
+        const u = new SpeechSynthesisUtterance(text.replace(/[*→]/g, ""));
+        if (cfg.voice) { u.voice = cfg.voice; u.lang = cfg.voice.lang; } else { u.lang = "en-US"; }
+        u.pitch = cfg.pitch; u.rate = cfg.rate;
+        synth.speak(u);
+      });
+    }, 80);
+  }
+  function speakScene() {
+    if (!synth || !listening || !st.id) return;
+    const n = STORY[st.id];
+    const lines = Array.from(view.querySelectorAll(".scene-title, .end-title, .prose p")).map(el => el.textContent.trim());
+    const opts = Array.from(view.querySelectorAll(".choice:not(.next)")).map(el => el.textContent.trim());
+    if (opts.length) { lines.push("What do you do?"); opts.forEach(o => lines.push(o)); }
+    say(lines, n.pov === "HIM");
+  }
+  function setListening(on) {
+    listening = on;
+    const b = $("btn-listen");
+    b.textContent = on ? "Stop" : "Listen";
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    if (on) speakScene(); else stopSpeech();
+  }
+  function voiceSection() {
+    if (!synth) return "";
+    if (!voices.length) loadVoices();
+    if (!voices.length) return "";
+    const opts = (him, cur) => '<option value="">Best available (automatic)</option>' + ranked(him).map(v =>
+      '<option value="' + esc(v.name).replace(/"/g, "&quot;") + '"' + (v.name === cur ? " selected" : "") + ">" + esc(v.name) + (/^en[-_]US/i.test(v.lang) ? "" : " · " + esc(v.lang)) + "</option>").join("");
+    return '<div><p class="sub">Voices for Listen</p><div class="voices">' +
+      '<label class="vrow" for="voice-her"><span>Layla’s scenes</span><select id="voice-her">' + opts(false, voicePref.her) + '</select><button class="tool" type="button" data-do="sample-her">Hear it</button></label>' +
+      '<label class="vrow" for="voice-him"><span>Dante’s scenes</span><select id="voice-him">' + opts(true, voicePref.him) + '</select><button class="tool" type="button" data-do="sample-him">Hear it</button></label>' +
+      '<label class="vrow" for="voice-rate"><span>Reading speed</span><select id="voice-rate">' + SPEEDS.map(x => '<option value="' + x[0] + '"' + (x[0] === speed() ? " selected" : "") + ">" + x[1] + "</option>").join("") + '</select><button class="tool" type="button" data-do="sample-her">Hear it</button></label>' +
+      '</div><p class="vnote">These voices come from your own phone or computer. The ones marked Natural, Enhanced or Premium sound the most human.</p></div>';
+  }
+  if (synth) {
+    loadVoices(); loadVoicePref();
+    if (synth.addEventListener) synth.addEventListener("voiceschanged", loadVoices);
+    $("btn-listen").hidden = false;
+    $("btn-listen").addEventListener("click", () => { if (!voices.length) loadVoices(); setListening(!listening); });
+    document.addEventListener("change", ev => {
+      if (ev.target.id === "voice-her") { voicePref.her = ev.target.value; saveVoicePref(); }
+      if (ev.target.id === "voice-him") { voicePref.him = ev.target.value; saveVoicePref(); }
+      if (ev.target.id === "voice-rate") { voicePref.rate = +ev.target.value || 1.2; saveVoicePref(); }
+    });
+    window.addEventListener("pagehide", stopSpeech);
+  }
+
+  /* ── map panel ── */
+  const WORDS = {
+    trust: ["Wary", "Watching", "Warming", "Trusting", "Devoted"],
+    secrets: ["None", "A few", "Heavy", "Dangerous", "Buried in them"],
+    anton: ["Your handler", "Something more", "Close", "Yours"]
+  };
+  const word = (k, v, step) => WORDS[k][Math.max(0, Math.min(WORDS[k].length - 1, Math.floor(v / step)))];
+  function meter(name, v, max, label) {
+    const pct = Math.max(0, Math.min(100, Math.round(v / max * 100)));
+    return '<div><div class="meter-name"><span>' + name + "</span><span>" + label + '</span></div><div class="track"><i style="width:' + pct + '%"></i></div></div>';
+  }
+  function drawMap() {
+    const s = st.id ? st.s : (st.saved ? st.saved.s : fresh());
+    const log = st.id ? st.log : (st.saved ? st.saved.log || {} : {});
+    const cur = st.id;
+    let h = '<div class="panel-head"><h2>Your path</h2><button class="tool" type="button" data-do="close">Close</button></div>';
+    h += '<div><p class="sub">Where you stand</p><div class="meters">' +
+      meter("His trust", s.trust, 10, word("trust", s.trust, 2.5)) +
+      meter("Your secrets", s.secrets, 8, word("secrets", s.secrets, 2)) +
+      meter("Anton", s.anton, 6, word("anton", s.anton, 2)) + "</div></div>";
+    h += voiceSection();
+    h += '<div><p class="sub">Your choices</p>';
+    ACTS.forEach(a => {
+      const ids = Object.keys(STORY).filter(k => STORY[k].act === a.n && STORY[k].decision && !STORY[k].ending);
+      const done = ids.filter(k => log[k]);
+      h += '<div class="act-block"><p class="act-name">Act ' + a.n + " · " + esc(a.name) + ' <span class="act-ch">' + esc(a.ch) + "</span></p><ul class=\"dec\">";
+      done.forEach(k => { h += '<li><span class="q">' + esc(STORY[k].decision) + "</span>" + fmt(log[k]) + "</li>"; });
+      if (cur && ids.includes(cur) && !log[cur]) h += '<li><span class="q">' + esc(STORY[cur].decision) + '</span><span class="ahead">Deciding now</span></li>';
+      const left = ids.length - done.length - (cur && ids.includes(cur) && !log[cur] ? 1 : 0);
+      if (left > 0) h += '<li class="ahead">' + left + (left === 1 ? " choice" : " choices") + " not yet made</li>";
+      h += "</ul></div>";
+    });
+    h += "</div>";
+    h += '<div><p class="sub">Endings · ' + found.length + " of " + Object.keys(ENDINGS).length + ' found</p><ul class="ends">';
+    Object.keys(ENDINGS).forEach(k => {
+      const e = ENDINGS[k], got = found.includes(k);
+      h += '<li class="' + (got ? "got" : "") + '"><span class="k">' + esc(e.kind) + '</span><span class="n">' + (got ? esc(e.name) : "Not yet found") + "</span></li>";
+    });
+    h += "</ul></div>";
+    h += '<div class="confirm">' + (confirmRestart
+      ? '<span>Start over from the first scene? Endings you found are kept.</span><button class="tool" type="button" data-do="begin">Yes, start over</button><button class="tool" type="button" data-do="cancel">Keep playing</button>'
+      : '<button class="tool" type="button" data-do="ask">Start over</button><button class="tool" type="button" data-do="home">Title page</button>') + "</div>";
+    panelIn.innerHTML = h;
+  }
+  function openMap() { stopSpeech(); confirmRestart = false; drawMap(); panel.hidden = false; panel.scrollTop = 0; }
+  function closeMap() { panel.hidden = true; }
+
+  document.addEventListener("click", ev => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    if (b.dataset.i !== undefined) return choose(+b.dataset.i);
+    switch (b.dataset.do) {
+      case "begin": closeMap(); return begin();
+      case "resume": return resume();
+      case "again": return begin();
+      case "back": return back();
+      case "map": return openMap();
+      case "close": stopSpeech(); return closeMap();
+      case "sample-her": return say(["You should say no. You put your hand in his instead, and the two of you move like you have been dancing for years."], false);
+      case "sample-him": return say(["I keep what’s mine, Layla. That now includes your problems."], true);
+      case "ask": confirmRestart = true; return drawMap();
+      case "cancel": confirmRestart = false; return drawMap();
+      case "home": closeMap(); if (st.id) { st.saved = { id: st.id, s: st.s, hist: st.hist, log: st.log }; st.id = null; } return render(true);
+    }
+  });
+  $("btn-back").addEventListener("click", back);
+  $("btn-map").addEventListener("click", openMap);
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !panel.hidden) closeMap(); });
+
+  function start(data) {
+    load();
+    if (data && data.id && STORY[data.id]) { st = { id: data.id, s: data.s, hist: data.hist || [], log: data.log || {} }; }
+    render(false);
+  }
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => (st.id ? { id: st.id, s: st.s, hist: st.hist, log: st.log } : {}));
+  if (hot && hot.ready) hot.ready(start); else start(hot && hot.data ? hot.data : {});
+})();
+</script>
+
+</body>
+</html>
