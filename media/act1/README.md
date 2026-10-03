@@ -11,6 +11,12 @@ To replace a placeholder, add a file here named exactly like the scene, with one
 | prologue | Gwyneth's bedroom, night |
 | crime | The crime scene, Monday noon |
 | ethan | Ethan Cole |
+| crime_candle | The purple candle |
+| crime_body | Gwyneth |
+| crime_room | The room |
+| ethan_curt, ethan_kind, ethan_warn | Ethan's three reactions |
+| lib_ben, lib_kath, lib_charles | The reference desk, the stacks, the manager's office |
+| diner_a, diner_b, diner_c | Across the table, a smile with dimples, a salad and an unanswered question |
 | library | The Specter Public Library |
 | computer | Gwyneth's computer |
 | diner | Bishop's |

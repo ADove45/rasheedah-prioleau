@@ -86,7 +86,7 @@
       html += '<div class="eyebrow"><span class="pov' + (n.pov === 'GWYN' ? ' gwyn' : '') + '">' + n.pov + '</span><span>Act ' + n.act + ' · ' + esc(act.name) + '</span><span>' + (n.ch === 'Prologue' ? 'From the prologue' : 'From chapter' + (/[–,]/.test(n.ch) ? 's ' : ' ') + esc(n.ch)) + '</span></div>';
       html += '<h1 class="scene-title" tabindex="-1" id="head">' + esc(n.title) + '</h1><div class="listening-note">Listening… press Text to read along.</div>';
       html += '<div class="prose">' + paraHtml(items) + '</div>';
-      var cs = n.choices.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return !x.c.show || x.c.show(st.s); });
+      var cs = (typeof n.choices === 'function' ? n.choices() : n.choices).map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return !x.c.show || x.c.show(st.s); });
       html += '<div class="choices">' + (cs.length > 1 ? '<div class="prompt">What do you do?</div>' : '');
       html += cs.map(function (x) { return '<button type="button" class="choice' + (cs.length === 1 ? ' next' : '') + '" data-i="' + x.i + '">' + fmt(x.c.label) + (cs.length === 1 ? ' →' : '') + '</button>'; }).join('') + '</div>';
       view._items = items; view._single = cs.length === 1 ? cs[0].i : -1;
@@ -117,7 +117,7 @@
   function resume() { var d = st.saved; st = { id: d.id, s: d.s, hist: d.hist || [], log: d.log || {}, saved: null }; lastId = null; render(true, true); }
   function back() { if (!st.hist.length) return; var p = st.hist.pop(); delete st.log[p.id]; st.id = p.id; st.s = p.s; lastId = null; render(true, true); }
   function choose(i) {
-    var n = STORY[st.id], c = n.choices[i], prev = st.id; if (!c) return;
+    var n = STORY[st.id], c = (typeof n.choices === 'function' ? n.choices() : n.choices)[i], prev = st.id; if (!c) return;
     st.hist.push({ id: st.id, s: clone(st.s) }); if (c.fx) c.fx(st.s);
     if (c.to !== st.id) st.log[st.id] = c.label; enterScene(c.to);
     render(c.to !== prev, true);

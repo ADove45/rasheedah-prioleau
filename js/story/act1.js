@@ -33,6 +33,18 @@ window.AS_CLUES = {
   var did = function (k) { return function (s) { return !!s.f[k]; }; };
   var mark = function (k, c) { return function (s) { s.f[k] = 1; if (c) AS.clue(s, c); }; };
   var ust = function (who, n) { return function (s) { s.trust[who] += n; }; };
+  var crimeOpts = function () { return [
+    { label: 'Look at the purple candle by the bed', show: f('c_candle'), to: 'crime_candle', fx: mark('c_candle', 'candle') },
+    { label: 'Look at the body', show: f('c_body'), to: 'crime_body', fx: mark('c_body', 'burns') },
+    { label: 'Look around the room', show: f('c_room'), to: 'crime_room', fx: mark('c_room', 'scent') },
+    { label: 'That is enough. Someone is waiting for you.', to: 'ethan' }
+  ]; };
+  var libOpts = function () { return [
+    { label: 'Go to the reference desk', show: f('l_ben'), to: 'lib_ben', fx: function (s) { s.f.l_ben = 1; if (s.shield) { s.f.pushed = 1; s.shield = false; AS.syncShield(); } s.trust.specters += 1; AS.clue(s, 'ben'); } },
+    { label: 'Go to the woman crying in the aisle', show: f('l_kath'), to: 'lib_kath', fx: mark('l_kath', 'katherine') },
+    { label: 'Knock on the manager’s door', show: f('l_charles'), to: 'lib_charles', fx: mark('l_charles', 'charles') },
+    { label: 'Check Gwyneth’s computer', to: 'computer' }
+  ]; };
 
   window.AS_STORY = {
     prologue: { act: 1, ch: 'Prologue', pov: 'GWYN', title: 'Dry Spell Reliever', amb: ['crickets', 'wind'], sting: 'candle',
@@ -41,45 +53,60 @@ window.AS_CLUES = {
 
     crime: { act: 1, ch: '1', pov: 'AUDRA', title: 'Half Past Noon', amb: ['hum', 'cicada'],
       enter: function (s) { s.shield = true; },
-      text: function (s) {
-        var t = 'It is half past noon on Monday when you step into the apartment of Gwyneth Miller. You were in Savannah the prior week but, as a native New Yorker, you are sure you will never get used to the stifling Georgia heat. The air conditioner is not on. You can hear the muffled sounds of country cops inevitably messing up the bedroom, which is now an official FBI crime scene.\n\nGwyneth Miller is the fifth victim of a suspected serial killer of the specter variety, who has a thing for dark-haired, dark-eyed women sleeping alone. You activate the specter shield you wear around your left wrist to block any specters from getting within five feet of you.\n\nYou have spent nearly four years on special assignments with the FBI investigating specter crimes. The biggest problem with catching a criminal specter is that they never leave any physical evidence: no DNA, no fingerprints, no calling card, no expository note, and no obvious motive.';
-        if (s.f.room) t += '\n\nYou walk into the bedroom and immediately note the scent of candles and perfume. You suspect that maybe this woman did have a visitor the night before, and that this would not fit the profile of your four previous cases. You scan the room and make note of the cheap, feminine décor.';
-        if (s.f.body) t += '\n\nGwyneth is lying in bed, on her side, with her hands near her throat, which is singed with strange burn marks. Her fingernails have scratched at her throat as well, peeling away some of the skin. These are the telltale signs of the specter you are following, but most disturbingly, this victim, like all the others, looks a lot like your sister.\n\n“Shit,” you say.';
-        if (s.f.candle) t += '\n\nYou look over at the side table and take in the large purple candle. “What is this?” You lean in close. Next to it sits a tiny instruction card.\n\n*“May love’s embrace meet me at dawn’s face.”* The Daylight Candle Shop.';
-        return t;
-      },
-      choices: [
-        { label: 'Look at the purple candle by the bed', show: f('candle'), to: 'crime', fx: mark('candle', 'candle') },
-        { label: 'Look at the body', show: f('body'), to: 'crime', fx: mark('body', 'burns') },
-        { label: 'Look around the room', show: f('room'), to: 'crime', fx: mark('room', 'scent') },
-        { label: 'That is enough. Someone is waiting for you.', to: 'ethan' }
-      ] },
+      text: 'It is half past noon on Monday when you step into the apartment of Gwyneth Miller. You were in Savannah the prior week but, as a native New Yorker, you are sure you will never get used to the stifling Georgia heat. The air conditioner is not on. You can hear the muffled sounds of country cops inevitably messing up the bedroom, which is now an official FBI crime scene.\n\nGwyneth Miller is the fifth victim of a suspected serial killer of the specter variety, who has a thing for dark-haired, dark-eyed women sleeping alone. You activate the specter shield you wear around your left wrist to block any specters from getting within five feet of you.\n\nYou have spent nearly four years on special assignments with the FBI investigating specter crimes. The biggest problem with catching a criminal specter is that they never leave any physical evidence: no DNA, no fingerprints, no calling card, no expository note, and no obvious motive.',
+      choices: function () { return crimeOpts(); } },
+
+    crime_candle: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Purple Candle', amb: ['hum', 'cicada'],
+      text: 'You look over at the side table and take in the large purple candle. “What is this?” You lean in close. Next to it sits a tiny instruction card.\n\n*“May love’s embrace meet me at dawn’s face.”*\n\nThe Daylight Candle Shop. Somebody sold her this.',
+      choices: function () { return crimeOpts(); } },
+
+    crime_body: { act: 1, ch: '1', pov: 'AUDRA', title: 'Gwyneth', amb: ['hum', 'cicada'],
+      text: 'You turn your attention to the body of the victim. Gwyneth is lying in bed, on her side, with her hands near her throat, which is singed with strange burn marks. Her fingernails have scratched at her throat as well, peeling away some of the skin.\n\nThese are the telltale signs of the specter that you are following, but most disturbingly, this victim, like all the others, looks a lot like your sister.\n\n“Shit,” you say.',
+      sting: 'cold', choices: function () { return crimeOpts(); } },
+
+    crime_room: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Room', amb: ['hum', 'cicada'],
+      text: 'You walk into Gwyneth Miller’s bedroom and immediately note the scent of candles and perfume. You suspect that maybe this woman did have a visitor the night before, and that this would not fit the profile of your four previous cases.\n\nYou quickly scan the room and make note of the cheap, feminine décor. You cringe.',
+      choices: function () { return crimeOpts(); } },
 
     ethan: { act: 1, ch: '1', pov: 'AUDRA', title: 'Hearing His Voice', amb: ['cicada'],
       text: function (s) {
-        return (s.f.candle ? '@ethan “A candle from the Daylight Candle Shop.”\n\nHearing his voice, you take a shallow breath before quickly letting it out.' : 'Behind you, a voice you know. You take a shallow breath before quickly letting it out.') +
+        return (s.f.c_candle ? '@ethan “A candle from the Daylight Candle Shop.”\n\nHearing his voice, you take a shallow breath before quickly letting it out.' : 'Behind you, a voice you know. You take a shallow breath before quickly letting it out.') +
           '\n\nYou turn as he strolls through Gwyneth Miller’s bedroom door. He wears laid-back local Southern clothes, faded jeans with a slightly tattered T-shirt and baseball cap, but there is no mistaking the city attitude in his walk. Ethan Cole. When you received the initial fax of a possible fifth victim, you read his name on top of the report with disbelief.\n\nHis New York City swagger is enough to make a nun forget her vows just long enough to break them four or five times. He is six years older than you, but it looks good on him.\n\nYou say a prayer for Gwyneth and leave without another word to anyone. Ethan follows you out of the apartment building.\n\n@ethan “Hey, Audra. Wait up.”\n\n“I’m going to go over to the library and question the people she worked with.”\n\n@ethan “I already did that.”\n\n“Well, I’m going to do it as well,” you reply, making it clear that the investigation is now yours to control.\n\n@ethan “Okay, but listen. This town is full of – ”\n\n“Specters? Yeah, I know.” You roll your eyes at the thought of an entire town, in southern America of all places, home to people who have passed away.\n\n@ethan “Go easy with this case. Gwyneth was the past sheriff’s daughter. She was well liked and even loved for that. This town has come to peacefully co-exist with the specters. Don’t go shaking your FBI trained bias where it doesn’t belong.”';
       },
       choices: [
-        { label: '“I don’t have time, Ethan.”', to: 'library', fx: ust('ethan', -1) },
-        { label: '“Don’t worry, I won’t go around zapping your ghostly citizens.”', to: 'library', fx: ust('ethan', 1) },
-        { label: '“You might want to warn the Daylight Candle Shop that they’re next on my list.”', to: 'library', fx: ust('specters', -1) }
+        { label: '“I don’t have time, Ethan.”', to: 'ethan_curt', fx: ust('ethan', -1) },
+        { label: '“Don’t worry, I won’t go around zapping your ghostly citizens.”', to: 'ethan_kind', fx: ust('ethan', 1) },
+        { label: '“You might want to warn the Daylight Candle Shop that they’re next on my list.”', to: 'ethan_warn', fx: ust('specters', -1) }
       ] },
 
+    ethan_curt: { act: 1, ch: '1', pov: 'AUDRA', title: 'No Time', amb: ['cicada'],
+      text: '“I don’t have time, Ethan.”\n\nYou hop into your car and drive the three blocks from Gwyneth’s apartment, leaving him standing in the heat. You are shutting out the wave of feelings that screams for your attention.',
+      choices: [{ label: 'The library', to: 'library' }] },
+    ethan_kind: { act: 1, ch: '1', pov: 'AUDRA', title: 'Zapping Ghosts', amb: ['cicada'],
+      text: '“Don’t worry, I won’t go around zapping your ghostly citizens.” Your specter zapper is safely tucked away in your gun belt, just to the rear of your handgun.\n\nEthan places a hand on your shoulder. You turn to walk to your car, pulling away from his touch in the process, shutting out the wave of feelings that screams for your attention.',
+      choices: [{ label: 'The library', to: 'library' }] },
+    ethan_warn: { act: 1, ch: '1', pov: 'AUDRA', title: 'Next on the List', amb: ['cicada'],
+      text: '“But you might want to warn the Daylight Candle Shop that they’re next on my list.”\n\n@ethan “Come on, Audra,” Ethan pleads.\n\nBut you don’t slow down. You hop into your car and drive the three blocks to the town’s public library.',
+      choices: [{ label: 'The library', to: 'library' }] },
+
     library: { act: 1, ch: '1', pov: 'AUDRA', title: 'Mostly Students', amb: ['hum', 'murmur'],
+      text: 'You find it hard to believe that people still go to the library, but when you walk in it is indeed full of people, mostly students. Most of them sit at computers playing games while listening to headphones.\n\nYou spot several specters dotting the library in various stages of manifestation. You can tell the newbies by their classic opaque ghost-like appearance. You never really mind those. In fact, you feel a great deal of sympathy for them, coming to terms with the fact that their lives are really over. It is the specters that have mastered every aspect of appearing normal, the ones that hide in plain sight pretending to be alive, that you don’t trust.',
+      choices: function () { return libOpts(); } },
+
+    lib_ben: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Reference Desk', amb: ['hum', 'murmur'],
       text: function (s) {
-        var t = 'You drive the three blocks to the town’s public library. You find it hard to believe that people still go to the library, but when you walk in it is indeed full of people, mostly students. Most of them sit at computers playing games while listening to headphones.\n\nYou spot several specters dotting the library in various stages of manifestation. You can tell the newbies by their classic opaque ghost-like appearance. You never really mind those. In fact, you feel a great deal of sympathy for them, coming to terms with the fact that their lives are really over. It is the specters that have mastered every aspect of appearing normal, the ones that hide in plain sight pretending to be alive, that you don’t trust.';
-        if (s.f.ben) t += '\n\nYou walk up to what appears to be an empty reference desk and are unsettled by the appearance of a specter who looks the part of a college kid with coke-bottle glasses and severe acne.' + (s.f.pushed ? '\n\n@benjamin “Whoa!”\n\nHe exclaims as your specter shield pushes him from his seat. @benjamin “What is that?” You deactivate the shield, knowing it would be impossible to get around with it on in a town full of ghosts.' : '') + '\n\n@benjamin “You here about Gwyn?” His voice is the usual hollow, otherworldly echo associated with specters still mastering speech without a voice box.\n\n@benjamin “She didn’t come into work this morning. Gwyn never missed a day. Mr. Stuart called Gwyn’s apartment when she didn’t show up but didn’t get an answer. Then he asked her super to check in on her. That’s when he found her.”\n\n“Who called the super?” you ask.\n\n@benjamin “Management.”\n\n“Thanks, uhm?”\n\n@benjamin “Benjamin. Benjamin Conner.”';
-        if (s.f.kath) t += '\n\nYou catch sight of a woman in her late thirties, crying alone down an aisle. She quickly dries her red-rimmed blue eyes and crosses her arms over her chest.\n\n“Hi, I’m Agent Wheeler. I’m here about Gwyneth Miller. Did you know her?”\n\n@katherine “I’m Katherine Taylor. We worked here together for the last six years. She was such a nice girl. She’d never hurt a fly. I can’t believe anyone would...”\n\n“Do you know if Gwyneth was seeing anybody?”\n\n@katherine “No. She was seeing some loser about a year ago but kicked him out. She’s been alone ever since.”\n\n“Do you know if Gwyn was associating with any specters?”\n\n@katherine “No. Her father used to be the sheriff here. He made it clear that he didn’t like the specter invasion. Other than going to the college she was pretty loyal to his point of view.”';
-        if (s.f.charles) t += '\n\nAt the manager’s door you hear hushed, muffled voices. You knock, and the voices stop. The door opens just wide enough for a tall, dark, and handsome man to peek his head out. His hair is disheveled, as if he has raked his hands through it several times. His eyes are bloodshot and there is a faint hint of liquor on his breath.\n\nA ghostly, feminine voice from inside says, “I’m outta here,” and a young girl with black and purple hair pushes past him and around you. Her shoulder vanishes and reappears as the rest of her clears you.\n\n@charles “My daughter, Amanda. I promised to do something remotely father-like and I had to back out because of the... situation. Charles Stuart. Come on in.”\n\n@charles “Gwyn? No, I don’t know anyone that didn’t like her. She was the quiet type. But very pleasant, great with the library patrons. Well, the last day she was here she seemed in an awful hurry to leave. Like she had somewhere important to go. I remember wondering if she’d met a new guy or something.”\n\nYou have to duck into an empty aisle as a flashback takes you over. You are fourteen again, in your older sister Kendra’s house. You hear a commotion that makes you get up from the television and walk toward her bedroom. “It’s okay,” you tell yourself in the present. “You’re not there anymore.” You take several breaths to steady yourself.';
-        return t;
-      },
-      choices: [
-        { label: 'Go to the reference desk', show: f('ben'), to: 'library', fx: function (s) { s.f.ben = 1; if (s.shield) { s.f.pushed = 1; s.shield = false; AS.syncShield(); } s.trust.specters += 1; AS.clue(s, 'ben'); } },
-        { label: 'Go to the woman crying in the aisle', show: f('kath'), to: 'library', fx: mark('kath', 'katherine') },
-        { label: 'Knock on the manager’s door', show: f('charles'), to: 'library', fx: mark('charles', 'charles') },
-        { label: 'Check Gwyneth’s computer', to: 'computer' }
-      ] },
+        return 'You walk up to what appears to be an empty reference desk and are unsettled by the appearance of a specter who looks the part of a college kid with coke-bottle glasses and severe acne.' +
+          (s.f.pushed ? '\n\n@benjamin “Whoa!”\n\nHe exclaims as your specter shield pushes him from his seat. @benjamin “What is that?” You deactivate the shield, knowing it would be impossible to get around with it on in a town full of ghosts.' : '') +
+          '\n\n@benjamin “You here about Gwyn?” His voice is the usual hollow, otherworldly echo associated with specters still mastering speech without a voice box.\n\n@benjamin “She didn’t come into work this morning. Gwyn never missed a day. Mr. Stuart called Gwyn’s apartment when she didn’t show up but didn’t get an answer. Then he asked her super to check in on her. That’s when he found her.”\n\n“Who called the super?” you ask.\n\n@benjamin “Management.”\n\n“Thanks, uhm?”\n\n@benjamin “Benjamin. Benjamin Conner.”';
+      }, choices: function () { return libOpts(); } },
+
+    lib_kath: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Woman in the Stacks', amb: ['hum', 'murmur'],
+      text: 'You catch sight of a woman in her late thirties, crying alone down an aisle. She quickly dries her red-rimmed blue eyes and crosses her arms over her chest.\n\n“Hi, I’m Agent Wheeler. I’m here about Gwyneth Miller. Did you know her?”\n\n@katherine “I’m Katherine Taylor. We worked here together for the last six years. She was such a nice girl. She’d never hurt a fly. I can’t believe anyone would...”\n\n“Do you know if Gwyneth was seeing anybody?”\n\n@katherine “No. She was seeing some loser about a year ago but kicked him out. She’s been alone ever since.”\n\n“Do you know if Gwyn was associating with any specters?”\n\n@katherine “No. Her father used to be the sheriff here. He made it clear that he didn’t like the specter invasion. Other than going to the college she was pretty loyal to his point of view.”',
+      choices: function () { return libOpts(); } },
+
+    lib_charles: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Manager’s Office', amb: ['hum', 'murmur'],
+      text: 'At the manager’s door you hear hushed, muffled voices. You knock, and the voices stop. The door opens just wide enough for a tall, dark, and handsome man to peek his head out. His hair is disheveled, as if he has raked his hands through it several times. His eyes are bloodshot and there is a faint hint of liquor on his breath.\n\nA ghostly, feminine voice from inside says, “I’m outta here,” and a young girl with black and purple hair pushes past him and around you. Her shoulder vanishes and reappears as the rest of her clears you.\n\n@charles “My daughter, Amanda. I promised to do something remotely father-like and I had to back out because of the... situation. Charles Stuart. Come on in.”\n\n@charles “Gwyn? No, I don’t know anyone that didn’t like her. She was the quiet type. But very pleasant, great with the library patrons. Well, the last day she was here she seemed in an awful hurry to leave. Like she had somewhere important to go. I remember wondering if she’d met a new guy or something.”\n\nOn your way out, a flashback takes you over. You are fourteen again, in your older sister Kendra’s house. You hear a commotion that makes you get up from the television and walk toward her bedroom. “It’s okay,” you tell yourself in the present. “You’re not there anymore.” You take several breaths to steady yourself.',
+      sting: 'cold', choices: function () { return libOpts(); } },
 
     computer: { act: 1, ch: '1', pov: 'AUDRA', title: 'The Password Is Library', amb: ['hum', 'murmur'],
       text: '“The password is library,” Charles Stuart supplies. “I need to get back to my office.”\n\nYou sit at Gwyneth’s computer and power it up quickly. You go to the web browser and check the history. In the last four hours of her last day at work, Gwyneth Miller searched for and visited the Daylight Candle Shop’s website. The final page in her history is on the big purple candle called the Dry Spell Reliever.\n\nYou shake your head and take down the address. Then your stomach growls. You hopped an immediate flight out of Savannah not thirty minutes after waking up to the call of this latest murder. You need food and rest, and you decide you should find both, in that order.',
@@ -90,10 +117,20 @@ window.AS_CLUES = {
       text: 'As you drive through town, the unmistakable aroma of barbecue guides you to a hole in the wall with the moniker Bishop’s. You step into the diner/bar/café and feel the daggers of local, loyal patron stares. Walking past them in your Prada suit with silk shirt and red-soled Manolos, you realize you might have felt less conspicuous in a paper bag.\n\nA specter waitress, whom you are sure was a high school cheerleader, what with her winning smile and pumped-up attitude over barbecue, comes to take your order.\n\n@ashley “Hey, you here about Gwyn? Everyone knows everyone. Awful shame, she was so nice. Helped me every time I needed to find a book.”\n\nIt unnerves you how many young specters are in the small town. You want to think of them as old people who’ve had their time on Earth and needed to move on.\n\nYour boss, Assistant Director Jonathan Cordero, always seemed to have a soft spot for you, probably because he was the one who investigated your sister’s attempted murder when you were just fourteen. He is the one who came and found you just before your college graduation and recruited you into the FBI. You never thought much about why.\n\nThe flashback takes you over once more. You turn on your sister’s bedroom light to find her hanging in mid-air, clawing at the burned flesh around her throat. Suddenly, whatever held her up lets go and she falls back onto the bed.\n\nYou are pulled back by the sound of Bishop’s door opening. You sit up as you catch sight of Ethan. He searches the room and, when his eyes land on you, he smiles.\n\n@ashley “Hey, Sheriff! Can I get anything for you?”\n\n@ethan “I already ate. But thanks for the water and rolls.”\n\n“Sheriff?” you ask, unable to hide your bewildered confusion.\n\n@ethan “Long story.”',
       sting: 'cold',
       choices: [
-        { label: '“I don’t believe in coincidences, Ethan. You should remember that much about me.”', to: 'station' },
-        { label: '“You look okay.”', to: 'station', fx: ust('ethan', 1) },
-        { label: 'Say nothing and eat your ribs.', to: 'station', fx: ust('ethan', -1) }
+        { label: '“I don’t believe in coincidences, Ethan. You should remember that much about me.”', to: 'diner_a' },
+        { label: '“You look okay.”', to: 'diner_b', fx: ust('ethan', 1) },
+        { label: 'Say nothing and eat your ribs.', to: 'diner_c', fx: ust('ethan', -1) }
       ] },
+
+    diner_a: { act: 1, ch: '2', pov: 'AUDRA', title: 'No Coincidences', amb: ['murmur', 'hum'],
+      text: '“Why are you here?” you finally blurt out.\n\nHe smiles and looks at you in a way that only he knows how in order to defuse your natural skepticism. @ethan “You want me to leave?”\n\n“No,” you say, maybe a little too quickly. “It’s just, I don’t believe in coincidences, Ethan. You should remember that much about me.”\n\nThey look at each other, and Ethan nods. @ethan “We’ll talk after lunch.” He lifts an eyebrow, and you realize he doesn’t want to talk amongst listening citizens.',
+      choices: [{ label: 'After lunch', to: 'station' }] },
+    diner_b: { act: 1, ch: '2', pov: 'AUDRA', title: 'You Look Okay', amb: ['murmur', 'hum'],
+      text: '@ethan “You look good,” he comments.\n\n“Thank you,” you say, unwilling to betray your raw feelings for him. “You look okay.”\n\nHe smiles and laughs, making his dimples deepen in amusement. @ethan “We’ll talk after lunch.” He lifts an eyebrow, and you realize he doesn’t want to talk amongst listening citizens.',
+      choices: [{ label: 'After lunch', to: 'station' }] },
+    diner_c: { act: 1, ch: '2', pov: 'AUDRA', title: 'Ribs', amb: ['murmur', 'hum'],
+      text: '@ethan “Miss me?” His smile broadens as you blush.\n\nYour salad arrives, saving you from having to answer or lie to him. You did miss him. Even two years later the water under your bridge hasn’t truly settled, but specter trouble never stops.\n\n@ethan “We’ll talk after lunch.” He lifts an eyebrow, and you realize he doesn’t want to talk amongst listening citizens.',
+      choices: [{ label: 'After lunch', to: 'station' }] },
 
     station: { act: 1, ch: '3', pov: 'AUDRA', title: 'A Type', amb: ['hum'],
       text: '@ethan “We’ll talk after lunch.” He lifts an eyebrow, and you realize he doesn’t want to talk amongst listening citizens.\n\nYou step into the four-room mobile home converted into a sheriff’s station and try not to let your disappointment show. There are two other desks in the room marked for a secretary and a deputy, but no one is there. An ancient filing cabinet takes up nearly half of the wall behind the sheriff’s desk.\n\nIn the back meeting room you open the briefcase and line up four separate files, in order from the first murder to the last.\n\n“Amanda Price of Boston, Massachusetts,” you say, and look at the girl’s postmortem mug shot. Her skin is grayish pale and her dark hair is pulled back off her lean face. The bruising from her own fingernail scratching, as well as the strange burn marks around her neck, stands out in the photograph like a gruesome necklace.\n\n“Jenifer Martin of Newark, New Jersey.” Then Linda Parker of Charlotte, North Carolina, and Regina Fowler of Savannah, Georgia.\n\n“All were alone and in bed at the time of their murders, most likely asleep.”\n\n@ethan “They all look alike.”\n\n“A serial killer with a type,” you agree. “A type that looks a lot like my sister.”\n\nEthan sits back as if a light bulb has gone off in his head.\n\n@ethan “Your sister was attacked like this, right? You think these are connected to your sister?”\n\n“I do,” you finally say aloud for the first time.',
@@ -168,6 +205,18 @@ window.AS_MEDIA = {
   prologue: ['Gwyneth\u2019s bedroom, night', 'A single purple candle burning on a nightstand, a woman asleep in the dark, moonlight through the blinds.'],
   crime: ['The crime scene, Monday noon', 'Bleached Georgia sunlight through a window, a bed, a purple candle and a small white instruction card on the bedside table.'],
   ethan: ['Ethan Cole', 'A man in a ball cap and faded jeans walking toward the camera on a sun-baked sidewalk.'],
+  crime_candle: ['The purple candle', 'A thick purple candle on a bedside table, an instruction card and a box of special matches beside it.'],
+  crime_body: ['Gwyneth', 'A woman asleep on her side, a hand near her throat, daylight stripes through the blinds.'],
+  crime_room: ['The room', 'A cheap, feminine bedroom: candle wax, a perfume bottle, a single wine glass.'],
+  ethan_curt: ['Driving away', 'A car pulling away from a curb in the heat, a man in a ball cap shrinking in the rear-view mirror.'],
+  ethan_kind: ['A hand on your shoulder', 'A hand resting on the shoulder of a dark suit jacket, a woman turning away.'],
+  ethan_warn: ['A warning', 'A woman striding to her car without looking back, a man in a ball cap calling after her.'],
+  lib_ben: ['The reference desk', 'A reference desk with an empty chair, a pair of thick glasses and the faint outline of a young man.'],
+  lib_kath: ['The stacks', 'A woman in a quiet aisle of books, wiping her eyes.'],
+  lib_charles: ['The manager\u2019s office', 'A cluttered office door, a purple-haired girl slipping through it as if through smoke.'],
+  diner_a: ['Across the table', 'Two people across a diner table, a plate of ribs, neither looking away.'],
+  diner_b: ['A smile with dimples', 'A man across a diner booth, laughing, dimples deepening.'],
+  diner_c: ['A salad and an unanswered question', 'A bowl of salad, a plate of ribs, a woman looking down at her plate.'],
   library: ['The Specter Public Library', 'Rows of shelves and students at computers, one translucent figure at the reference desk.'],
   computer: ['Gwyneth\u2019s computer', 'A library desktop screen showing the Daylight Candle Shop website and a thick purple candle.'],
   diner: ['Bishop\u2019s', 'A hole-in-the-wall barbecue diner, a flickering neon sign, a flicker of a young waitress who isn\u2019t quite solid.'],
