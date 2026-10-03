@@ -107,7 +107,7 @@
       '<p class="lede">A librarian in Specter, Georgia lights a candle and does not wake up. Five other women have died the same way, in five different cities, and every one of them looks like your sister. You are FBI Special Agent Audra Wheeler, and the trail leads to the one town where the dead walk the streets beside the living.</p>' +
       '<ul class="facts"><li>You play <b>Audra</b></li><li><b>6</b> acts</li><li>Act <b>I</b> is open now</li><li>About <b>25</b> minutes so far</li></ul>' +
       '<div class="cta-row">' + (st.saved ? '<button class="cta" type="button" data-do="resume">Continue</button><button class="cta ghost" type="button" data-do="begin">Start over</button>' : '<button class="cta" type="button" data-do="begin">Begin</button>') + bookBtn() + '</div>' +
-      '<p class="note">For adult readers. This story contains violence, a suicide attempt, sexual content, and racial violence. Your choices are saved on this device. Press Listen at the top to hear each scene read aloud, with ambient sound beneath it. Headphones recommended.</p></div></div>';
+      '<p class="note">For adult readers. This story contains violence, a suicide attempt, sexual content, and racial violence. Your choices are saved on this device. Press Listen at the top to hear each scene read aloud, with soft music beneath it. Headphones recommended.</p></div></div>';
     attachMedia();
   }
 
@@ -184,7 +184,7 @@
   $('btn-back').onclick = back; $('btn-map').onclick = openMap;
   $('btn-listen').onclick = function () { setListening(!listening); };
   $('btn-text').onclick = function () { textOn = !textOn; if (!textOn && !listening) setListening(true); else updateBtns(); };
-  $('btn-sound').onclick = function () { ensureAudio(); soundOn = !soundOn; ASAudio.setEnabled(soundOn); this.textContent = 'Sound: ' + (soundOn ? 'On' : 'Off'); this.classList.toggle('on', soundOn); };
+  $('btn-sound').onclick = function () { ensureAudio(); soundOn = !soundOn; ASAudio.setEnabled(soundOn); this.textContent = 'Music: ' + (soundOn ? 'On' : 'Off'); this.classList.toggle('on', soundOn); };
   $('btn-shield').onclick = function () { if (!st.s) return; st.s.shield = !st.s.shield; syncShield(); toast('Specter shield ' + (st.s.shield ? 'on' : 'off')); save(); };
   document.addEventListener('change', function (e) {
     var id = e.target.id; if (id === 'v-narr') ASAudio.setPref('narr', e.target.value); else if (id === 'v-aud') ASAudio.setPref('aud', e.target.value); else if (id === 'v-f') ASAudio.setPref('f', e.target.value); else if (id === 'v-m') ASAudio.setPref('m', e.target.value); else if (id === 'v-rate') ASAudio.setPref('rate', +e.target.value);

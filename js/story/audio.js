@@ -1,6 +1,6 @@
 // Generated ambience and stingers (Web Audio, no files) plus browser text-to-speech.
 window.ASAudio = (function () {
-  var ctx, master, enabled = true, beds = {}, active = {}, noiseCache = {};
+  var ctx, master, enabled = true, active = {}, noiseCache = {};
 
   function init() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
@@ -21,82 +21,79 @@ window.ASAudio = (function () {
     }
     return (noiseCache[kind] = buf);
   }
-  function src(kind) { var s = ctx.createBufferSource(); s.buffer = noise(kind); s.loop = true; s.start(); return s; }
   function osc(type, f) { var o = ctx.createOscillator(); o.type = type; o.frequency.value = f; o.start(); return o; }
-  function lfo(freq, depth, target) { var o = osc('sine', freq), g = ctx.createGain(); g.gain.value = depth; o.connect(g); g.connect(target); return o; }
 
-  // each bed builds nodes into `out` and returns a stop() cleanup
-  var defs = {
-    cicada: function (out) {
-      var n = src('white'), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 5200; bp.Q.value = 9;
-      var am = ctx.createGain(); am.gain.value = 0.05; lfo(32, 0.04, am.gain); lfo(0.12, 0.03, am.gain);
-      n.connect(bp); bp.connect(am); am.connect(out); return function () { n.stop(); };
-    },
-    crickets: function (out) {
-      var n = src('white'), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 14;
-      var am = ctx.createGain(); am.gain.value = 0.035; lfo(7, 0.03, am.gain); lfo(0.08, 0.02, am.gain);
-      n.connect(bp); bp.connect(am); am.connect(out); return function () { n.stop(); };
-    },
-    hum: function (out) {
-      var a = osc('sine', 60), b = osc('sine', 120), n = src('brown'), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 220;
-      var g = ctx.createGain(); g.gain.value = 0.07; a.connect(g); b.connect(g); n.connect(lp); lp.connect(g); g.connect(out);
-      return function () { a.stop(); b.stop(); n.stop(); };
-    },
-    rain: function (out) {
-      var n = src('pink'), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 700;
-      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7000; var g = ctx.createGain(); g.gain.value = 0.28;
-      n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out); return function () { n.stop(); };
-    },
-    wind: function (out) {
-      var n = src('pink'), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 1.2;
-      lfo(0.07, 260, bp.frequency); var g = ctx.createGain(); g.gain.value = 0.22; n.connect(bp); bp.connect(g); g.connect(out);
-      return function () { n.stop(); };
-    },
-    cold: function (out) { // the Cold Air: thin, dry, low
-      var a = osc('sawtooth', 55), b = osc('sawtooth', 55.8), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 170; lp.Q.value = 7;
-      var g = ctx.createGain(); g.gain.value = 0.2; lfo(0.18, 0.08, g.gain);
-      var n = src('white'), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 6500; var hg = ctx.createGain(); hg.gain.value = 0.015;
-      a.connect(lp); b.connect(lp); lp.connect(g); g.connect(out); n.connect(hp); hp.connect(hg); hg.connect(out);
-      return function () { a.stop(); b.stop(); n.stop(); };
-    },
-    murmur: function (out) { // diner / crowd
-      var n = src('pink'), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 0.8;
-      var g = ctx.createGain(); g.gain.value = 0.09; lfo(0.4, 0.04, g.gain); n.connect(bp); bp.connect(g); g.connect(out); return function () { n.stop(); };
-    },
-    candle: function (out) { // soft crackle
-      var timer = setInterval(function () {
-        if (!ctx) return; var t = ctx.currentTime, n = ctx.createBufferSource(); n.buffer = noise('white');
-        var hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3500; var g = ctx.createGain();
-        g.gain.setValueAtTime(0.05 + Math.random() * 0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + Math.random() * 0.04);
-        n.connect(hp); hp.connect(g); g.connect(out); n.start(t, Math.random() * 2, 0.1);
-      }, 260);
-      return function () { clearInterval(timer); };
-    },
-    heartbeat: function (out) {
-      var timer = setInterval(function () {
-        var t = ctx.currentTime;
-        [0, 0.28].forEach(function (off, i) {
-          var o = osc('sine', 52), g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t + off); g.gain.exponentialRampToValueAtTime(i ? 0.25 : 0.4, t + off + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.18);
-          o.connect(g); g.connect(out); o.stop(t + off + 0.25);
-        });
-      }, 1000);
-      return function () { clearInterval(timer); };
-    }
+  // ---------- music: a soft drifting pad, sparse music-box notes, long echo ----------
+  var rev = null, revIn = null;
+  function reverb() {
+    if (rev) return revIn;
+    var len = ctx.sampleRate * 3.6, buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (var c = 0; c < 2; c++) { var d = buf.getChannelData(c); for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    rev = ctx.createConvolver(); rev.buffer = buf; revIn = ctx.createGain(); revIn.gain.value = 1;
+    var wet = ctx.createGain(); wet.gain.value = 0.7; revIn.connect(rev); rev.connect(wet); wet.connect(master);
+    return revIn;
+  }
+  var MOODS = {
+    night: { pad: 110,  bell: 440,   scale: [0, 2, 3, 5, 7, 8, 10], chords: [[0, 7, 14, 15], [-4, 3, 7, 14], [3, 7, 10, 14], [5, 8, 12, 19]], chordSec: 11, tick: 0.9,  density: 0.42, bright: 800 },
+    day:   { pad: 146.8, bell: 587.3, scale: [0, 2, 3, 5, 7, 9, 10], chords: [[0, 7, 10, 14], [-4, 0, 3, 7], [-7, -4, 0, 3], [-5, 2, 5, 7]],     chordSec: 10, tick: 0.8,  density: 0.5,  bright: 950 },
+    warm:  { pad: 87.3,  bell: 523.3, scale: [0, 2, 4, 6, 7, 9, 11], chords: [[0, 4, 7, 11], [-3, 0, 4, 11], [2, 6, 9, 14]],                    chordSec: 9,  tick: 0.65, density: 0.6,  bright: 1200 },
+    cold:  { pad: 82.4,  bell: 329.6, scale: [0, 1, 3, 5, 7, 8, 10], chords: [[0, 1, 6, 7], [-2, 0, 5, 6], [0, 6, 7, 13]],                      chordSec: 12, tick: 1.4,  density: 0.28, bright: 520 }
   };
-
-  function setBeds(names) {
-    if (!ctx) return;
-    Object.keys(active).forEach(function (k) {
-      if (names.indexOf(k) === -1) {
-        var a = active[k]; a.out.gain.cancelScheduledValues(ctx.currentTime); a.out.gain.setTargetAtTime(0, ctx.currentTime, 0.6);
-        setTimeout(function () { try { a.stop(); a.out.disconnect(); } catch (e) {} }, 3000); delete active[k];
+  function moodFor(names) {
+    if (names.indexOf('cold') > -1) return 'cold';
+    if (names.indexOf('candle') > -1) return 'warm';
+    if (names.indexOf('wind') > -1 || names.indexOf('crickets') > -1) return 'night';
+    return 'day';
+  }
+  function makeMusic(mood, out) {
+    var m = MOODS[mood], ci = 0, timers = [], dry = ctx.createGain(); dry.gain.value = 1; dry.connect(out);
+    var send = ctx.createGain(); send.gain.value = 0.55; dry.connect(send); send.connect(reverb());
+    var dl = ctx.createDelay(1.5), fb = ctx.createGain(), dlp = ctx.createBiquadFilter(), dg = ctx.createGain();
+    dl.delayTime.value = 0.62; fb.gain.value = 0.38; dlp.type = 'lowpass'; dlp.frequency.value = 1800; dg.gain.value = 0.5;
+    dry.connect(dl); dl.connect(dlp); dlp.connect(fb); fb.connect(dl); dlp.connect(dg); dg.connect(out); dg.connect(send);
+    function hz(base, semi) { return base * Math.pow(2, semi / 12); }
+    function pad() {
+      var t = ctx.currentTime, chord = m.chords[ci++ % m.chords.length], dur = m.chordSec, lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass'; lp.frequency.value = m.bright; lp.Q.value = 0.6; lp.connect(dry);
+      chord.forEach(function (semi, i) {
+        [-6, 6].forEach(function (cents) {
+          var o = ctx.createOscillator(), g = ctx.createGain(); o.type = i % 2 ? 'sine' : 'triangle'; o.frequency.value = hz(m.pad, semi); o.detune.value = cents;
+          g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.028, t + 4); g.gain.setValueAtTime(0.028, t + dur - 1); g.gain.linearRampToValueAtTime(0.0001, t + dur + 5);
+          o.connect(g); g.connect(lp); o.start(t); o.stop(t + dur + 5.5);
+        });
+      });
+      var sub = ctx.createOscillator(), sg = ctx.createGain(); sub.type = 'sine'; sub.frequency.value = hz(m.pad / 2, chord[0]);
+      sg.gain.setValueAtTime(0.0001, t); sg.gain.linearRampToValueAtTime(0.05, t + 5); sg.gain.linearRampToValueAtTime(0.0001, t + dur + 5); sub.connect(sg); sg.connect(dry); sub.start(t); sub.stop(t + dur + 5.5);
+    }
+    function bell() {
+      if (Math.random() > m.density) return;
+      var t = ctx.currentTime + 0.05, chord = m.chords[(ci - 1 + m.chords.length) % m.chords.length], semi;
+      if (Math.random() < 0.55) semi = chord[Math.floor(Math.random() * chord.length)] % 12; else semi = m.scale[Math.floor(Math.random() * m.scale.length)];
+      var f = hz(m.bell, semi + (Math.random() < 0.3 ? 12 : 0)), vel = 0.05 + Math.random() * 0.06, n = Math.random() < 0.3 ? 2 : 1;
+      for (var k = 0; k < n; k++) {
+        var tt = t + k * 0.42, ff = k ? hz(m.bell, m.scale[Math.floor(Math.random() * m.scale.length)]) : f;
+        [[1, 1], [2.76, 0.18], [5.4, 0.06]].forEach(function (p) {
+          var o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = ff * p[0];
+          g.gain.setValueAtTime(0.0001, tt); g.gain.exponentialRampToValueAtTime(vel * p[1], tt + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, tt + 3.2 / p[0] + 0.4);
+          o.connect(g); g.connect(dry); o.start(tt); o.stop(tt + 4);
+        });
       }
+    }
+    pad(); timers.push(setInterval(pad, m.chordSec * 1000)); timers.push(setInterval(bell, m.tick * 1000));
+    setTimeout(bell, 1200);
+    return function () { timers.forEach(clearInterval); setTimeout(function () { try { dry.disconnect(); dg.disconnect(); } catch (e) {} }, 9000); };
+  }
+
+  var curMood = null;
+  function setBeds(names) { // scenes pass their old ambience names; they now choose the music mood
+    if (!ctx) return; var mood = (names && names.length) ? moodFor(names) : null; if (mood === curMood) return; curMood = mood;
+    Object.keys(active).forEach(function (k) {
+      var a = active[k]; a.out.gain.cancelScheduledValues(ctx.currentTime); a.out.gain.setTargetAtTime(0, ctx.currentTime, 1.6);
+      setTimeout(function () { try { a.stop(); a.out.disconnect(); } catch (e) {} }, 9000); delete active[k];
     });
-    names.forEach(function (k) {
-      if (active[k] || !defs[k]) return;
-      var out = ctx.createGain(); out.gain.value = 0; out.connect(master);
-      var stop = defs[k](out); out.gain.setTargetAtTime(1, ctx.currentTime, 0.9); active[k] = { out: out, stop: stop };
-    });
+    if (!mood) return;
+    var out = ctx.createGain(); out.gain.value = 0; out.connect(master); out.gain.setTargetAtTime(1, ctx.currentTime, 1.4);
+    active[mood] = { out: out, stop: makeMusic(mood, out) };
   }
 
   function env(g, t, peak, a, d) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
@@ -159,7 +156,7 @@ window.ASAudio = (function () {
   loadPref();
 
   return {
-    init: init, setBeds: setBeds, sting: sting, setEnabled: setEnabled, isEnabled: function () { return enabled; },
+    init: init, debug: function () { return { ctx: ctx, master: master }; }, setBeds: setBeds, sting: sting, setEnabled: setEnabled, isEnabled: function () { return enabled; },
     speakSeq: speakSeq, stopSpeech: stopSpeech, hasVoices: function () { return !!window.speechSynthesis; },
     voices: function (g) { if (!voiceList.length) loadVoices(); return ranked(g); }, pref: function () { return pref; },
     setPref: function (k, v) { pref[k] = v; savePref(); }, speakSample: function (who) { speakSeq([{ text: 'Half past noon on a Monday, and the air conditioner is off.', who: who }]); }
