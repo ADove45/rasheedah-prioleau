@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1430">
+<meta name="description" content="Krystal Silvers writes mafia romance. Play Mafia Daddy’s Captivating Good Girl as an interactive story.">
+<title>Krystal Silvers | Mafia Romance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400;1,6..96,500&family=Spectral:ital,wght@0,400;1,400&family=Jost:wght@400;500;600&display=swap">
+<style>
+:root { --bg:#0e1430; --surface:#172048; --fg:#f2ede3; --muted:#a8b0cf; --accent:#e2556f; --accent-fill:#b3243f; --gold:#dcc38e; --line:#2c386b;
+  --display:"Bodoni Moda","Didot","Times New Roman",serif; --body:"Spectral",Georgia,serif; --label:"Jost","Avenir Next","Segoe UI",sans-serif; color-scheme:dark; }
+@media (prefers-color-scheme: light) { :root { --bg:#edf0f8; --surface:#fff; --fg:#131936; --muted:#515c88; --accent:#a01d38; --accent-fill:#a01d38; --gold:#775a1c; --line:#cbd1e6; color-scheme:light; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); font-size:1.2rem; line-height:1.65; }
+:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+.wrap { max-width:44rem; margin:0 auto; padding:3rem 1.25rem 4rem; display:flex; flex-direction:column; gap:2.5rem; }
+.label { font-family:var(--label); font-size:.95rem; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin:0; }
+h1,h2,h3 { font-family:var(--display); font-weight:400; margin:0; }
+h1 { font-size:clamp(2.6rem,11vw,4.6rem); line-height:1; font-style:italic; }
+.tag { margin:.8rem 0 0; color:var(--muted); max-width:32rem; }
+.card { border:1px solid var(--line); background:var(--surface); padding:1.5rem; display:flex; flex-direction:column; gap:.9rem; }
+.card h2 { font-size:clamp(1.8rem,6vw,2.4rem); line-height:1.1; font-style:italic; }
+.card h2 em { color:var(--accent); }
+.card p { margin:0; }
+.facts { font-family:var(--label); font-size:1rem; color:var(--muted); }
+.btn { align-self:flex-start; font-family:var(--label); font-weight:600; font-size:1.05rem; letter-spacing:.12em; text-transform:uppercase; text-decoration:none; padding:.95rem 1.6rem; background:var(--accent-fill); color:#fff; border:1px solid var(--accent-fill); }
+.btn:hover { filter:brightness(1.12); }
+.note { font-size:1.02rem; color:var(--muted); }
+footer { font-family:var(--label); font-size:.95rem; color:var(--muted); }
+@media (max-width:34rem) { .btn { align-self:stretch; text-align:center; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <p class="label">Mafia romance</p>
+    <h1>Krystal Silvers</h1>
+    <p class="tag">Dangerous men, impossible choices, and the women who change the rules.</p>
+  </header>
+  <section aria-labelledby="novels">
+    <p class="label" id="novels" style="margin-bottom:1rem">Play the story</p>
+    <article class="card">
+      <h2>Mafia Daddy’s Captivating <em>Good Girl</em></h2>
+      <p>At 10:37 one night, two men break down your door. By midnight you are at a charity gala, sent to spy on the most dangerous man in the city. Then a stranger asks you to dance.</p>
+      <p class="facts">You play Layla · 5 acts · 6 endings · About 20 minutes</p>
+      <a class="btn" href="good-girl.html">Begin the story</a>
+      <p class="note">For adult readers. Contains violence, captivity and mature themes.</p>
+    </article>
+  </section>
+  <footer>&copy; <span id="y"></span> Krystal Silvers. All rights reserved.</footer>
+</main>
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+</body>
+</html>
