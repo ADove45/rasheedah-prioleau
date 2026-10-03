@@ -35,7 +35,7 @@ S.novels.forEach(function(n){
   var p = document.createElement('p'); p.textContent = n.blurb;
   c.append(img, m, h, p);
   if(n.playable){
-    var a = document.createElement('a'); a.className = 'btn'; a.textContent = 'Read'; a.href = 'reader.html?novel=' + encodeURIComponent(n.slug);
+    var a = document.createElement('a'); a.className = 'btn'; a.textContent = n.cta || 'Read'; a.href = n.url || ('reader.html?novel=' + encodeURIComponent(n.slug));
     c.appendChild(a);
   } else {
     var soon = document.createElement('div'); soon.className = 'soon'; soon.textContent = 'Interactive edition coming soon';

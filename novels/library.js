@@ -17,8 +17,10 @@ window.SITE = {
       title: "American Specter: The Seven Sisters",
       book: "Book One",
       cover: "images/book-1-the-seven-sisters.jpg",
+      url: "experience.html",
+      cta: "Play the interactive experience (Act I)",
       blurb: "For thirteen years, FBI Agent Audra Wheeler has carried one unanswered question: what attacked her sister Kendra and left her trapped in a coma that never ended? When Assistant Director Jonathan Cordero recruits Audra onto a task force built to investigate crimes committed by specters, she finally has a reason to hope for an answer. A new killer is working a M.O. that matches her sister's attacker almost exactly, and this time, Audra intends to catch them. The trail leads her to Specter, Georgia, a quiet town that is a haven for ghosts that walk its streets alongside the living, hidden in plain sight. For Audra, it's the last place she expected to find answers. It might also be the only place she can finally get them.",
-      playable: false
+      playable: true
     },
     {
       slug: "the-winter-solstice",
