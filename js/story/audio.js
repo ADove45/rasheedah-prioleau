@@ -113,31 +113,55 @@ window.ASAudio = (function () {
 
   function setEnabled(on) { enabled = on; if (master) master.gain.setTargetAtTime(on ? 0.85 : 0, ctx.currentTime, 0.2); }
 
-  // ---------- voices ----------
-  var voicesOn = true, voiceList = [], FEM = /samantha|victoria|karen|moira|tessa|aria|jenny|zira|susan|hazel|ava|allison|joanna|female|serena|fiona|emma|libby|sonia|michelle|nicole|salli|kendra|ivy|amy/i, MALE = /daniel|alex|fred|david|mark|guy|george|male|tom|aaron|ryan|brian|davis|oliver|arthur|matthew|joey|justin|eric|christopher/i;
-  function loadVoices() { if (!window.speechSynthesis) return; voiceList = speechSynthesis.getVoices().filter(function (v) { return /^en/i.test(v.lang); }); }
+  // ---------- voices (device text-to-speech, picked like a reader would) ----------
+  var voiceList = [], run = 0, pref = { narr: '', f: '', m: '', rate: 1.0 };
+  var FEM = /samantha|victoria|karen|moira|tessa|aria|jenny|zira|susan|hazel|ava|allison|joanna|female|serena|fiona|emma|libby|sonia|michelle|nicole|salli|kendra|ivy|amy|siri/i;
+  var MALE = /daniel|alex|fred|david|mark|guy|george|male|tom|aaron|ryan|brian|davis|oliver|arthur|matthew|joey|justin|eric|christopher|gordon/i;
+  function loadVoices() { if (window.speechSynthesis) { try { voiceList = speechSynthesis.getVoices().filter(function (v) { return /^en/i.test(v.lang); }); } catch (e) { voiceList = []; } } }
   if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
-  function score(v) { return (/natural|neural|online/i.test(v.name) ? 6 : 0) + (/google|microsoft|apple|siri|enhanced|premium/i.test(v.name) ? 2 : 0) + (/en-US/i.test(v.lang) ? 1 : 0); }
-  function voiceFor(gender, rank) {
-    var re = gender === 'm' ? MALE : FEM, pool = voiceList.filter(function (v) { return re.test(v.name); });
-    if (!pool.length) pool = voiceList.slice();
-    pool.sort(function (a, b) { return score(b) - score(a); });
-    return pool[Math.min(rank || 0, pool.length - 1)] || null;
+  function score(v) { return (/natural|neural|online/i.test(v.name) ? 6 : 0) + (/premium|enhanced/i.test(v.name) ? 5 : 0) + (/google|microsoft|apple|siri/i.test(v.name) ? 2 : 0) + (/en-US/i.test(v.lang) ? 1 : 0); }
+  function ranked(gender) {
+    var re = gender === 'm' ? MALE : gender === 'f' ? FEM : null;
+    var pool = voiceList.filter(function (v) { return !re || re.test(v.name); });
+    if (!pool.length && re) pool = voiceList.slice();
+    return pool.sort(function (a, b) { return score(b) - score(a); });
   }
-  var cur = null;
-  function speak(text, who, onend) {
-    stopSpeech();
-    if (!voicesOn || !window.speechSynthesis || !text) { if (onend) onend(); return false; }
-    var u = new SpeechSynthesisUtterance(text), v = voiceFor(who.g || 'f', who.rank || 0);
-    if (v) u.voice = v; u.pitch = who.pitch || 1; u.rate = who.rate || 1; u.volume = 1;
-    u.onend = u.onerror = function () { if (cur === u) { cur = null; if (onend) onend(); } };
-    cur = u; speechSynthesis.speak(u); return true;
+  function findByName(n) { return n && voiceList.filter(function (v) { return v.name === n; })[0]; }
+  function resolve(who) {
+    who = who || {}; var g = who.g || 'f', want = who.narr ? pref.narr : pref[g], v = findByName(want), pitch = who.pitch || 1, rate = (who.rate || 1) * pref.rate;
+    if (!v) { var list = ranked(g); v = list[Math.min(who.rank || 0, list.length - 1)] || null; }
+    if (g === 'm' && v && !MALE.test(v.name) && FEM.test(v.name)) pitch = Math.min(pitch, 0.6);
+    return { voice: v, pitch: pitch, rate: rate };
   }
-  function stopSpeech() { if (window.speechSynthesis) { cur = null; speechSynthesis.cancel(); } }
+  function chunks(text) {
+    var parts = text.match(/[^.!?\u2026]+[.!?\u2026]+["\u201d\u2019)]*\s*|[^.!?\u2026]+$/g) || [text], out = [], cur = '';
+    parts.forEach(function (p) { if ((cur + p).length > 230 && cur) { out.push(cur); cur = p; } else cur += p; });
+    if (cur) out.push(cur); return out;
+  }
+  function stopSpeech() { run++; if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) {} } }
+  // items: [{text, who}] read in order; onItem(i) fires as each begins; onDone() when all finish
+  function speakSeq(items, onItem, onDone) {
+    stopSpeech(); var my = run, i = 0;
+    if (!window.speechSynthesis || !items.length) { if (onDone) onDone(); return false; }
+    function nextItem() {
+      if (my !== run) return; if (i >= items.length) { if (onDone) onDone(); return; }
+      var it = items[i], cs = chunks(it.text.replace(/[*\u2192]/g, '')), k = 0, cfg = resolve(it.who); if (onItem) onItem(i); i++;
+      (function nextChunk() {
+        if (my !== run) return; if (k >= cs.length) return nextItem();
+        var u = new SpeechSynthesisUtterance(cs[k++]); if (cfg.voice) { u.voice = cfg.voice; u.lang = cfg.voice.lang; } else u.lang = 'en-US';
+        u.pitch = cfg.pitch; u.rate = cfg.rate; u.onend = u.onerror = nextChunk; speechSynthesis.speak(u);
+      })();
+    }
+    nextItem(); return true;
+  }
+  function loadPref() { try { var d = JSON.parse(localStorage.getItem('as-voices') || '{}'); pref = { narr: d.narr || '', f: d.f || '', m: d.m || '', rate: +d.rate || 1.0 }; } catch (e) {} }
+  function savePref() { try { localStorage.setItem('as-voices', JSON.stringify(pref)); } catch (e) {} }
+  loadPref();
 
   return {
     init: init, setBeds: setBeds, sting: sting, setEnabled: setEnabled, isEnabled: function () { return enabled; },
-    speak: speak, stopSpeech: stopSpeech, setVoices: function (on) { voicesOn = on; if (!on) stopSpeech(); },
-    hasVoices: function () { return !!window.speechSynthesis; }
+    speakSeq: speakSeq, stopSpeech: stopSpeech, hasVoices: function () { return !!window.speechSynthesis; },
+    voices: function (g) { if (!voiceList.length) loadVoices(); return ranked(g); }, pref: function () { return pref; },
+    setPref: function (k, v) { pref[k] = v; savePref(); }, speakSample: function (who) { speakSeq([{ text: 'Half past noon on a Monday, and the air conditioner is off.', who: who }]); }
   };
 })();

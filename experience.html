@@ -1,79 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>American Specter: The Seven Sisters | Interactive</title>
-<meta name="description" content="An interactive, cinematic investigation set in Specter, Georgia, by Rasheedah Prioleau.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive investigation based on the novel by Rasheedah Prioleau. You play FBI Special Agent Audra Wheeler.">
+<title>American Specter: The Seven Sisters | An Interactive Investigation</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/experience.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Spectral:ital,wght@0,400;0,600;1,400&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/story.css">
 </head>
 <body>
-<div id="stage">
-  <canvas id="fx"></canvas>
-  <div id="frost"></div>
-  <div id="cast"></div>
-  <div id="black"></div>
-  <div id="hud">
-    <div id="where"></div>
-    <div id="tools">
-      <button class="tool" id="boardBtn">Case Board</button>
-      <button class="tool" id="shieldbtn">Shield: ON</button>
-      <button class="tool on" id="soundBtn">Sound: ON</button>
-      <button class="tool" id="voiceBtn">Voices: ON</button>
-      <button class="tool" id="autoBtn">Auto: OFF</button>
-    </div>
+<header class="bar"><div class="bar-in">
+  <div class="mark">The Seven Sisters</div>
+  <div class="acts" id="acts" aria-hidden="true"></div>
+  <div class="tools">
+    <button class="tool" id="btn-listen" type="button" aria-pressed="false" hidden>Listen</button>
+    <button class="tool on" id="btn-text" type="button">Text: On</button>
+    <button class="tool on" id="btn-sound" type="button">Sound: On</button>
+    <button class="tool on" id="btn-shield" type="button">Shield: On</button>
+    <button class="tool" id="btn-back" type="button">Back</button>
+    <button class="tool" id="btn-map" type="button">Case Board</button>
   </div>
-  <div id="toast"></div>
-  <div id="dialog">
-    <div id="box">
-      <div id="speaker"></div>
-      <div id="text"></div>
-      <div id="qsrc"></div>
-      <div id="prompt"></div>
-      <div id="choices"></div>
-      <div id="hint">Click or press Space to continue</div>
-    </div>
-  </div>
-
-  <div id="title" class="overlay show">
-    <h1><em>Rasheedah Prioleau presents</em>American Specter<br>The Seven Sisters</h1>
-    <p class="sub">An interactive investigation. You are FBI Special Agent Audra Wheeler, and the killer is somewhere in Specter, Georgia. Your choices decide what you learn, who you trust, and how the case unfolds.</p>
-    <div>
-      <button class="btn" id="beginBtn">Begin</button>
-      <button class="btn ghost" id="resumeBtn" style="display:none">Continue</button>
-    </div>
-    <div class="opts">
-      <label><input type="checkbox" id="optSound" checked> Ambient sound</label>
-      <label><input type="checkbox" id="optVoice" checked> Voices (text-to-speech)</label>
-      <label><input type="checkbox" id="optAuto"> Auto-advance</label>
-    </div>
-    <p class="sub" style="font-size:.78rem;margin-top:22px">Content note: mature themes, violence, suicide, and racial violence. Best with headphones. Space or click to advance; number keys to choose.<br>This is an adaptation with short excerpts. <a style="color:var(--gold)" href="index.html">Back to the author's site</a></p>
-  </div>
-
-  <div id="card" class="overlay"><h2 id="cardk"></h2><h1 id="cardt"></h1><p class="sub" id="cards"></p></div>
-
-  <div id="board" class="overlay">
-    <h2 style="font-weight:normal;letter-spacing:.3em;color:var(--gold)">THE CASE BOARD</h2>
-    <div id="boardgrid"></div>
-    <button class="btn" id="closeBoard">Close</button>
-  </div>
-
-  <div id="end" class="overlay">
-    <h1><em>End of Act I</em>The Candle</h1>
-    <div class="stats" id="endstats"></div>
-    <p class="sub">Audra knows the killer has a type, that Gwyneth was one of at least six, and that a murder from twenty-five years ago ties it all to one powerful family. Acts II through VI are coming next.</p>
-    <div>
-      <button class="btn" id="endBoardBtn">Review the Case Board</button>
-      <a class="btn ghost" href="https://www.amazon.com/dp/B09CLJ7HBB" target="_blank" rel="noopener">Read the full novel on Amazon</a>
-      <button class="btn ghost" id="againBtn">Play again</button>
-      <a class="btn ghost" href="index.html">Back to the site</a>
-    </div>
-  </div>
-</div>
-<script src="js/experience/audio.js"></script>
-<script src="js/experience/visuals.js"></script>
-<script src="js/experience/act1.js"></script>
-<script src="js/experience/engine.js"></script>
+</div></header>
+<main class="page"><div id="view" class="view"></div></main>
+<section class="panel" id="panel" hidden aria-label="Case board"><div class="panel-in" id="panel-in"></div></section>
+<div class="toast" id="toast" role="status"></div>
+<script src="js/story/audio.js"></script>
+<script src="js/story/act1.js"></script>
+<script src="js/story/engine.js"></script>
 </body>
 </html>
