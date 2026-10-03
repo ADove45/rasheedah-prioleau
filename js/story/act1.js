@@ -6,6 +6,7 @@ window.AS_ACTS = [
   { n: 5, name: 'The Reckoning', ch: 'Chapters 25–31' }, { n: 6, name: 'Aftermath', ch: 'Chapters 32–34' }
 ];
 window.AS_CHARS = {
+  audra: { g: 'f', rank: 0, pitch: 1.0, rate: 1.0, aud: true },
   ethan: { g: 'm', rank: 0, pitch: 0.9, rate: 0.98 }, benjamin: { g: 'm', rank: 1, pitch: 0.7, rate: 0.85 }, charles: { g: 'm', rank: 1, pitch: 0.85, rate: 0.96 },
   mayor: { g: 'm', rank: 2, pitch: 0.8, rate: 1.05 }, brendon: { g: 'm', rank: 3, pitch: 0.95, rate: 0.97 },
   katherine: { g: 'f', rank: 2, pitch: 1.05, rate: 0.98 }, ashley: { g: 'f', rank: 2, pitch: 0.85, rate: 0.88 }, mackenzie: { g: 'f', rank: 1, pitch: 0.95, rate: 0.93 },
@@ -160,3 +161,23 @@ window.AS_CLUES = {
     act1end: { act: 1, endAct: true, ch: '5', pov: 'AUDRA', title: 'The Candle', amb: ['wind'], text: '' }
   };
 })();
+
+/* Picture or video pinned above the text for each scene. Drop a file into media/act1/ named exactly <name>.mp4, .webm, .jpg, .png or .webp
+   and it replaces the placeholder automatically. Wide (16:9) works best; videos should be short, silent loops. */
+window.AS_MEDIA = {
+  prologue: ['Gwyneth\u2019s bedroom, night', 'A single purple candle burning on a nightstand, a woman asleep in the dark, moonlight through the blinds.'],
+  crime: ['The crime scene, Monday noon', 'Bleached Georgia sunlight through a window, a bed, a purple candle and a small white instruction card on the bedside table.'],
+  ethan: ['Ethan Cole', 'A man in a ball cap and faded jeans walking toward the camera on a sun-baked sidewalk.'],
+  library: ['The Specter Public Library', 'Rows of shelves and students at computers, one translucent figure at the reference desk.'],
+  computer: ['Gwyneth\u2019s computer', 'A library desktop screen showing the Daylight Candle Shop website and a thick purple candle.'],
+  diner: ['Bishop\u2019s', 'A hole-in-the-wall barbecue diner, a flickering neon sign, a flicker of a young waitress who isn\u2019t quite solid.'],
+  station: ['The sheriff\u2019s station', 'A trailer meeting room, four case files laid side by side, four women with dark hair.'],
+  sister: ['A hallway at the B&B', 'A closing door, warm lamplight under it, and later a note on a pillow.'],
+  shop: ['The Daylight Candle Shop', 'Narrow aisles, hundreds of candle flames, lavender smoke, a woman behind the counter.'],
+  hands: ['Mackenzie reads your palms', 'Two hands, palms up, held in candlelight. A chakra chart on the table.'],
+  gwyn: ['Gwyneth Miller, specter', 'A translucent woman standing between the shelves, the candle flames showing through her.'],
+  file: ['Abigail\u2019s case file', 'Three tarnished pages, a medical examiner photograph, a deputy\u2019s signature underlined.'],
+  told: ['Ethan holds you', 'Two figures in a dim trailer office, one holding the other.'],
+  mayor: ['The mayor at the door', 'A short, angry man in thick glasses in a trailer doorway, a charming man in a suit behind him.'],
+  act1end: ['End of Act I', 'The Specter, Georgia skyline at night, a faint cluster of stars (the Pleiades) overhead.']
+};
