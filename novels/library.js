@@ -10,6 +10,7 @@ window.SITE = {
     "Writers who have influenced her include: Judy Blume, Jude Deveraux, V.C. Andrews, Octavia Butler, Stephanie Meyer, Charlaine Harris, Joss Whedon, William Nicholson, Shonda Rhimes, Quentin Tarantino, Tyler Perry, Mike Kelley, and J.J. Abrams... just to name a few."
   ],
   quote: "I love to write because there are no limits. All it takes is a finite space of time and I can create a story from infinite possibilities.",
+  amazonSeries: "https://www.amazon.com/dp/B09CLJ7HBB",
   novels: [
     {
       slug: "the-seven-sisters",

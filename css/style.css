@@ -34,3 +34,4 @@ footer{text-align:center;color:var(--muted);padding:40px 20px;border-top:1px sol
 .cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
 #bio p{margin-bottom:1em}
 blockquote{border-left:3px solid var(--accent2);padding:6px 0 6px 18px;margin-top:24px;font-style:italic;color:var(--accent);font-size:1.15rem}
+.series-link{text-align:center;margin-top:30px}

@@ -14,7 +14,7 @@
   <p id="tagline"></p>
 </header>
 <main class="wrap">
-  <section><h2>The Novels</h2><div class="cards" id="cards"></div></section>
+  <section><h2>The Novels</h2><div class="cards" id="cards"></div><p class="series-link"><a class="btn ghost" id="amazon" target="_blank" rel="noopener">View the series on Amazon</a></p></section>
   <section><h2>About the Author</h2><div id="bio"></div><blockquote id="quote"></blockquote></section>
 </main>
 <footer>&copy; <span id="year"></span> <span id="pen2"></span>. All rights reserved.</footer>
@@ -25,6 +25,7 @@ function t(id, v){ document.getElementById(id).textContent = v; }
 t('series', S.series); t('pen', S.penName); t('pen2', S.penName);
 t('tagline', S.tagline); t('quote', '\u201C' + S.quote + '\u201D');
 S.bio.forEach(function(x){ var e = document.createElement('p'); e.textContent = x; document.getElementById('bio').appendChild(e); }); t('year', new Date().getFullYear());
+document.getElementById('amazon').href = S.amazonSeries;
 var cards = document.getElementById('cards');
 S.novels.forEach(function(n){
   var c = document.createElement('div'); c.className = 'card';
