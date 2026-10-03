@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rasheedah Prioleau | American Specter Series</title>
+<meta name="description" content="Interactive ghost stories from the American Specter Series by Rasheedah Prioleau.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="series" id="series"></div>
+  <h1 id="pen"></h1>
+  <p id="tagline"></p>
+</header>
+<main class="wrap">
+  <section><h2>The Novels</h2><div class="cards" id="cards"></div><p class="series-link"><a class="btn ghost" id="amazon" target="_blank" rel="noopener">View the series on Amazon</a></p></section>
+  <section><h2>About the Author</h2><div id="bio"></div><blockquote id="quote"></blockquote></section>
+</main>
+<footer>&copy; <span id="year"></span> <span id="pen2"></span>. All rights reserved.</footer>
+<script src="novels/library.js"></script>
+<script>
+var S = window.SITE;
+function t(id, v){ document.getElementById(id).textContent = v; }
+t('series', S.series); t('pen', S.penName); t('pen2', S.penName);
+t('tagline', S.tagline); t('quote', '\u201C' + S.quote + '\u201D');
+S.bio.forEach(function(x){ var e = document.createElement('p'); e.textContent = x; document.getElementById('bio').appendChild(e); }); t('year', new Date().getFullYear());
+document.getElementById('amazon').href = S.amazonSeries;
+var cards = document.getElementById('cards');
+S.novels.forEach(function(n){
+  var c = document.createElement('div'); c.className = 'card';
+  var img = document.createElement('img'); img.className = 'cover'; img.src = n.cover; img.alt = 'Cover of ' + n.title; img.loading = 'lazy';
+  var m = document.createElement('div'); m.className = 'meta'; m.textContent = n.book;
+  var h = document.createElement('h3'); h.textContent = n.title;
+  var p = document.createElement('p'); p.textContent = n.blurb;
+  c.append(img, m, h, p);
+  if(n.playable){
+    var a = document.createElement('a'); a.className = 'btn'; a.textContent = n.cta || 'Read'; a.href = n.url || ('reader.html?novel=' + encodeURIComponent(n.slug));
+    c.appendChild(a);
+  } else {
+    var soon = document.createElement('div'); soon.className = 'soon'; soon.textContent = 'Interactive edition coming soon';
+    c.appendChild(soon);
+  }
+  cards.appendChild(c);
+});
+</script>
+</body>
+</html>
