@@ -35,4 +35,4 @@ Each scene has a pinned picture/video area. Add files to `media/act1/` (see the 
 
 How it plays: each trip across town costs an hour (8 in a day). At each place you examine things and talk to people for clues. The specter shield blocks specters from speaking, so you must switch it off at the right moments. On the Case Board, tap two clues that belong together to form a theory.
 
-Add a place: add an entry to `SV.PLACES` with `x`/`y` map position and a list of `actions`. Add a clue to `SV.CLUES` and a theory (a pair of clues) to `SV.THEORIES`. Lines in `data.js` marked INVENTED are placeholders to check against the manuscript.
+Add a place: add an entry to `SV.PLACES` with `x`/`y` map position and a list of `actions`. Add a clue to `SV.CLUES` and a theory (a pair of clues) to `SV.THEORIES`. Case One was checked against the manuscript of *The Seven Sisters* (chapters 1-5). It is being extended chapter by chapter.

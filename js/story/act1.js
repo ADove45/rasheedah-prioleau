@@ -25,7 +25,7 @@ window.AS_CLUES = {
   throat: ['The Throat Chakra', 'The throat governs truth and speech. Someone may be silencing the victims to keep a secret.'],
   abigail: ['Abigail Stevens', 'Gwyn’s birth mother was strangled in the hospital the day Gwyn was born. Never solved.'],
   cordero: ['A Familiar Signature', 'Deputy Jonathan Cordero signed Abigail’s witness statements. He never told you.'],
-  shelleys: ['The Shelleys', 'The richest family in town. They paid for the new hospital, built where the old one stood.']
+  shelleys: ['The Shelleys', 'The richest family in town. They funded the new hospital five years ago. The old hospital, where Abigail died, is now a park.']
 };
 
 (function () {
