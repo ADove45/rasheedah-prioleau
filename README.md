@@ -28,11 +28,13 @@ The full manuscript is **not** in this repo.
 Each scene has a pinned picture/video area. Add files to `media/act1/` (see the README there); until then a labeled placeholder is shown.
 
 ## Specterville (the game)
-`specterville.html` is an explorable-town investigation game across the whole American Specter universe. You play Audra Wheeler. It currently holds Case One, "The Candle" (Book One, one Monday in Specter, Georgia). Books Two and Three are sealed doors on the title screen.
-- `js/specterville/data.js` - **all the content**: places, people, scenes, choices, clues, theories. Edit this to grow the game.
-- `js/specterville/game.js` - the engine (title hub, map, clock, scenes, Case Board, save/resume). Rarely needs to change.
+`specterville.html` is an explorable-town investigation game across the whole American Specter universe. You play Audra Wheeler. It currently holds **Case One, "The Seven Sisters" (Book One)** as seven days, from Monday's crime scene to the jailhouse accusation. Books Two and Three are sealed doors on the title screen.
+- `js/specterville/data.js` - shared content: people, clues, theories, suspects, map positions.
+- `js/specterville/days/day1.js` ... `day7.js` - one file per day: its places, the actions at each place, set-piece events and the night scene.
+- `js/specterville/days/ending.js` - the winning and losing endings.
+- `js/specterville/game.js` - the engine (title hub, days, map, clock, scenes, Case Board, accusation, save/resume). Rarely needs to change.
 - `css/specterville.css` - styling.
 
-How it plays: each trip across town costs an hour (8 in a day). At each place you examine things and talk to people for clues. The specter shield blocks specters from speaking, so you must switch it off at the right moments. On the Case Board, tap two clues that belong together to form a theory.
+How it plays: each trip across town costs time and a day has a limited number of trips. At each place you examine things and talk to people for clues. The specter shield blocks specters from speaking, so you must switch it off at the right moments. On the Case Board, tap two clues that belong together to form a theory. Set-piece scenes from the book (the fire, the town hall, the dinner) happen automatically. On Day 7 you name the killer and choose the three clues that prove it. You get two chances.
 
-Add a place: add an entry to `SV.PLACES` with `x`/`y` map position and a list of `actions`. Add a clue to `SV.CLUES` and a theory (a pair of clues) to `SV.THEORIES`. Case One was checked against the manuscript of *The Seven Sisters* (chapters 1-5). It is being extended chapter by chapter.
+Add a place or an action: edit the day's `places`. Add a clue to `SV.CLUES`, a theory (a pair of clues) to `SV.THEORIES`. The dialogue is condensed from the manuscript of *The Seven Sisters* and keeps its wording. The manuscript itself is not in this repo.

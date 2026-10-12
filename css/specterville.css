@@ -88,3 +88,15 @@ button.clue:hover{border-color:var(--gold)}.clue.pick{border-color:var(--gold);b
 .toast{position:fixed;left:50%;bottom:1.2rem;transform:translate(-50%,2rem);background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:.55rem 1rem;font-size:.9rem;opacity:0;pointer-events:none;transition:.3s;z-index:30;max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media(min-width:760px){.doors{grid-template-columns:repeat(3,1fr)}.pin span{font-size:.78rem;max-width:11rem}}
+
+/* v2: day cards, accusation, endings */
+.logo.small{font-size:clamp(2rem,8vw,3rem)}
+.scene.left{text-align:left}
+.title .scene{margin:0 auto;max-width:36rem}
+.cta[disabled]{opacity:.35;cursor:default}
+.act b.who{display:inline-block;margin-bottom:.15rem}
+.tally{flex-wrap:wrap}
+.tally div{min-width:7rem}
+.choice b,.scene b.who{white-space:nowrap}
+
+@media(max-width:600px){.map{aspect-ratio:4/3}}
