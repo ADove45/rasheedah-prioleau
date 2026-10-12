@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Specterville: an explorable, investigative game set in the American Specter universe by Rasheedah Prioleau. You play FBI Special Agent Audra Wheeler.">
+<title>Specterville | An American Specter Game</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/specterville.css">
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <div class="mark">Specterville</div>
+  <div class="clock" id="clock"></div>
+  <div class="tools">
+    <button class="tool on" id="btn-shield" type="button" hidden>Shield: On</button>
+    <button class="tool" id="btn-board" type="button" hidden>Case Board</button>
+    <button class="tool" id="btn-menu" type="button" hidden>Menu</button>
+  </div>
+</div></header>
+<main class="page"><div id="view"></div></main>
+<section class="panel" id="panel" hidden aria-label="Case board"><div class="panel-in" id="panel-in"></div></section>
+<div class="toast" id="toast" role="status"></div>
+<script src="js/story/audio.js"></script>
+<script src="js/specterville/data.js"></script>
+<script src="js/specterville/game.js"></script>
+</body>
+</html>

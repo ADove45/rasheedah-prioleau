@@ -26,3 +26,13 @@ The full manuscript is **not** in this repo.
 
 ## Pictures and video
 Each scene has a pinned picture/video area. Add files to `media/act1/` (see the README there); until then a labeled placeholder is shown.
+
+## Specterville (the game)
+`specterville.html` is an explorable-town investigation game across the whole American Specter universe. You play Audra Wheeler. It currently holds Case One, "The Candle" (Book One, one Monday in Specter, Georgia). Books Two and Three are sealed doors on the title screen.
+- `js/specterville/data.js` - **all the content**: places, people, scenes, choices, clues, theories. Edit this to grow the game.
+- `js/specterville/game.js` - the engine (title hub, map, clock, scenes, Case Board, save/resume). Rarely needs to change.
+- `css/specterville.css` - styling.
+
+How it plays: each trip across town costs an hour (8 in a day). At each place you examine things and talk to people for clues. The specter shield blocks specters from speaking, so you must switch it off at the right moments. On the Case Board, tap two clues that belong together to form a theory.
+
+Add a place: add an entry to `SV.PLACES` with `x`/`y` map position and a list of `actions`. Add a clue to `SV.CLUES` and a theory (a pair of clues) to `SV.THEORIES`. Lines in `data.js` marked INVENTED are placeholders to check against the manuscript.
