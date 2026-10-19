@@ -161,14 +161,33 @@
 'use strict';
 /* ============================== constants ============================== */
 const R = 8, C = 8;
-const PALETTE = [
-  ['#ffffff', '#8fb4d9'], // 0 ghost
-  ['#ffb347', '#d35400'], // 1 pumpkin
-  ['#fff3a0', '#d4a800'], // 2 crescent moon
-  ['#9dff7a', '#2a9d2a'], // 3 potion
-  ['#c58bff', '#5b2a9a'], // 4 bat
-  ['#f6ecd8', '#a8956f']  // 5 skull
-];
+const PALETTES = {
+  1: [ // Book One: shadow ghost, constellation star, chakra orbs
+    ['#8d6bc4', '#1a0b30'], // 0 shadow ghost
+    ['#fff6c2', '#e0a800'], // 1 constellation star
+    ['#ff8a80', '#b71c1c'], // 2 root chakra (red)
+    ['#fff59d', '#f9a825'], // 3 solar plexus chakra (yellow)
+    ['#a5ffb0', '#1b8f3a'], // 4 heart chakra (green)
+    ['#9fa8ff', '#2a2f9e']  // 5 third-eye chakra (indigo)
+  ],
+  2: [ // Book Two: sheriff's badge, silver orb, petrified ghost, snowflake, wreath, solstice sun
+    ['#ffe28a', '#b8860b'], // 0 sheriff's badge
+    ['#f4f6fa', '#667282'], // 1 silver orb
+    ['#cfb0ff', '#6a3fa8'], // 2 purple petrified ghost
+    ['#e6fbff', '#3f9fe0'], // 3 snowflake
+    ['#7be08b', '#1d6b2e'], // 4 holly wreath
+    ['#ffc58a', '#e8590c']  // 5 solstice sun
+  ],
+  3: [ // Book Three: flaming eye, angel wings, headstone, masquerade mask, lightning, lantern
+    ['#7a1f1f', '#2a0505'], // 0 flaming eye
+    ['#ffffff', '#aebbe6'], // 1 angel wings
+    ['#d5d9e0', '#5d6470'], // 2 headstone
+    ['#d9a0ff', '#6b1fa8'], // 3 masquerade mask
+    ['#ff8a9a', '#d00030'], // 4 crimson lightning
+    ['#ffe9a0', '#c88a00']  // 5 cemetery lantern
+  ]
+};
+let PALETTE = PALETTES[1], theme = 1;
 const SP_NONE = 0, SP_H = 1, SP_V = 2, SP_WRAP = 3, SP_BOMB = 4;
 const MAX_LEVEL = 30;
 const STAGES = [
@@ -541,89 +560,194 @@ function update(dt) {
 }
 
 /* ============================== rendering ============================== */
-function shapePath(type, r) {
+/* ----- Book Three pieces: flaming eye, angel wings, headstone, masquerade mask, lightning, lantern ----- */
+function shapePathB(type, r) {
   ctx.beginPath();
   switch (type) {
-    case 0: { // ghost
-      ctx.moveTo(-r * .95, r * .95); ctx.lineTo(-r * .95, -r * .1);
-      ctx.arc(0, -r * .1, r * .95, Math.PI, 0);
-      ctx.lineTo(r * .95, r * .95);
-      ctx.quadraticCurveTo(r * .63, r * .6, r * .32, r * .95);
-      ctx.quadraticCurveTo(0, r * .6, -r * .32, r * .95);
-      ctx.quadraticCurveTo(-r * .63, r * .6, -r * .95, r * .95);
-      break;
+    case 0: // eye (almond)
+      ctx.moveTo(-r * 1.12, r * .08); ctx.quadraticCurveTo(0, -r * 1.2, r * 1.12, r * .08); ctx.quadraticCurveTo(0, r * 1.15, -r * 1.12, r * .08); break;
+    case 1: { // angel wings
+      const half = [[0, .55], [.2, -.45], [.65, -1.0], [1.15, -.85], [1.0, -.5], [1.18, -.3], [.92, .02], [1.06, .22], [.72, .45], [.8, .72], [.42, .65], [.22, .95]];
+      const pts = half.concat(half.slice().reverse().map(([x, y]) => [-x, y]));
+      pts.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * r, y * r)); break;
     }
-    case 1: ctx.ellipse(0, r * .12, r * 1.1, r * .88, 0, 0, Math.PI * 2); break; // pumpkin
-    case 2: { // crescent moon
-      ctx.arc(0, 0, r * 1.05, -2.2, 2.2);
-      ctx.arc(-r * .58, 0, r * .85, 1.55, -1.55, true);
-      break;
-    }
-    case 3: { // potion flask
-      ctx.moveTo(-r * .3, -r); ctx.lineTo(r * .3, -r); ctx.lineTo(r * .3, -r * .42);
-      ctx.arc(0, r * .3, r * .78, -1.176, 4.317);
-      ctx.lineTo(-r * .3, -r);
-      break;
-    }
-    case 4: { // bat
-      const half = [[0, -.4], [.28, -.9], [.4, -.35], [1.15, -.75], [1.1, -.05], [.75, .3], [.55, .05], [.3, .8], [0, .45]];
-      const pts = half.concat(half.slice(1, -1).reverse().map(([x, y]) => [-x, y]));
-      pts.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * r, y * r));
-      break;
-    }
-    default: { // skull
-      ctx.moveTo(-r * .5, r * .95); ctx.lineTo(-r * .5, r * .6);
-      ctx.arc(0, -r * .15, r * .9, 2.158, 7.266);
-      ctx.lineTo(r * .5, r * .95);
-    }
+    case 2: // headstone
+      ctx.moveTo(-r * .72, r * .98); ctx.lineTo(-r * .72, -r * .2); ctx.arc(0, -r * .2, r * .72, Math.PI, 0); ctx.lineTo(r * .72, r * .98); break;
+    case 3: // masquerade mask
+      ctx.moveTo(-r * 1.12, -r * .05); ctx.quadraticCurveTo(-r * .6, -r * .8, 0, -r * .4); ctx.quadraticCurveTo(r * .6, -r * .8, r * 1.12, -r * .05);
+      ctx.quadraticCurveTo(r * .95, r * .75, r * .38, r * .6); ctx.quadraticCurveTo(0, r * .3, -r * .38, r * .6); ctx.quadraticCurveTo(-r * .95, r * .75, -r * 1.12, -r * .05); break;
+    case 4: // lightning bolt
+      [[.25, -1.12], [-.68, .12], [-.1, .12], [-.32, 1.12], [.68, -.22], [.1, -.22], [.5, -1.12]].forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * r, y * r)); break;
+    default: // lantern
+      [[-.3, -1.0], [.3, -1.0], [.56, -.6], [.56, .7], [.36, .98], [-.36, .98], [-.56, .7], [-.56, -.6]].forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * r, y * r));
   }
   ctx.closePath();
 }
 
-function ell(x, y, rx, ry) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); }
-
-function drawDetails(type, r) {
+function drawDetailsB(type, r) {
   const dark = 'rgba(28,8,40,.88)';
-  ctx.fillStyle = dark; ctx.strokeStyle = dark; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   switch (type) {
-    case 0:
-      ell(-r * .34, -r * .2, r * .14, r * .21); ctx.fill();
-      ell(r * .34, -r * .2, r * .14, r * .21); ctx.fill();
-      ell(0, r * .22, r * .12, r * .17); ctx.fill();
-      break;
-    case 1: {
-      ctx.fillStyle = '#3f8a22'; ctx.fillRect(-r * .1, -r * .98, r * .22, r * .3);
-      ctx.fillStyle = dark;
-      ctx.beginPath(); ctx.moveTo(-r * .6, -r * .1); ctx.lineTo(-r * .2, -r * .1); ctx.lineTo(-r * .4, -r * .42); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(r * .6, -r * .1); ctx.lineTo(r * .2, -r * .1); ctx.lineTo(r * .4, -r * .42); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(-r * .55, r * .22); ctx.lineTo(-r * .3, r * .5); ctx.lineTo(-r * .15, r * .28); ctx.lineTo(0, r * .52);
-      ctx.lineTo(r * .15, r * .28); ctx.lineTo(r * .3, r * .5); ctx.lineTo(r * .55, r * .22); ctx.lineTo(r * .4, r * .66); ctx.lineTo(-r * .4, r * .66); ctx.fill();
+    case 0: { // flames above, glowing iris and slit pupil
+      ctx.fillStyle = '#ff9a2a';
+      [[-.7, .2], [-.3, .5], [.1, .62], [.5, .5], [.8, .2]].forEach(([x, h]) => {
+        ctx.beginPath(); ctx.moveTo((x - .17) * r, -r * .45); ctx.quadraticCurveTo((x - .05) * r, -r * (.8 + h * .6), x * r + r * .05, -r * (1.0 + h * .5)); ctx.quadraticCurveTo((x + .2) * r, -r * .8, (x + .17) * r, -r * .42); ctx.fill();
+      });
+      ctx.save(); ctx.shadowColor = '#ffb347'; ctx.shadowBlur = r * .5; ctx.fillStyle = '#ffd24a'; ell(0, r * .05, r * .42, r * .42); ctx.fill(); ctx.restore();
+      ctx.fillStyle = dark; ell(0, r * .05, r * .1, r * .36); ctx.fill();
       break;
     }
-    case 2:
-      ctx.fillStyle = 'rgba(150,105,0,.35)';
-      [[.5, -.25, .14], [.62, .2, .1], [.28, .45, .08]].forEach(([x, y, k]) => { ell(x * r, y * r, k * r, k * r); ctx.fill(); });
+    case 1: { // feather lines + halo
+      ctx.strokeStyle = 'rgba(110,130,190,.7)'; ctx.lineWidth = Math.max(1, r * .05);
+      [-1, 1].forEach(s => { for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(s * r * .22, r * (.3 - k * .12)); ctx.quadraticCurveTo(s * r * .65, -r * (.1 + k * .25), s * r * (.95 - k * .08), -r * (.55 - k * .22)); ctx.stroke(); } });
+      ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = Math.max(1.2, r * .08); ctx.beginPath(); ctx.ellipse(0, -r * .62, r * .28, r * .1, 0, 0, Math.PI * 2); ctx.stroke();
       break;
-    case 3:
-      ctx.fillStyle = '#7a4a22'; ctx.fillRect(-r * .36, -r * 1.14, r * .72, r * .3);
-      ctx.fillStyle = 'rgba(255,255,255,.7)';
-      [[-.2, .35, .15], [.22, .08, .1], [.15, .55, .08]].forEach(([x, y, k]) => { ell(x * r, y * r, k * r, k * r); ctx.fill(); });
+    }
+    case 2: { // engraved cross, moss
+      ctx.strokeStyle = 'rgba(40,45,55,.75)'; ctx.lineWidth = Math.max(1.5, r * .12);
+      ctx.beginPath(); ctx.moveTo(0, -r * .62); ctx.lineTo(0, r * .35); ctx.moveTo(-r * .3, -r * .25); ctx.lineTo(r * .3, -r * .25); ctx.stroke();
+      ctx.fillStyle = 'rgba(70,140,70,.75)'; ctx.beginPath(); ctx.moveTo(-r * .72, r * .98); ctx.lineTo(-r * .72, r * .7); ctx.quadraticCurveTo(-r * .3, r * .6, 0, r * .8); ctx.quadraticCurveTo(r * .35, r * .66, r * .72, r * .8); ctx.lineTo(r * .72, r * .98); ctx.fill();
       break;
-    case 4:
-      ctx.fillStyle = '#ff4040';
-      ell(-r * .14, -r * .22, r * .09, r * .09); ctx.fill(); ell(r * .14, -r * .22, r * .09, r * .09); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.moveTo(-r * .12, r * .02); ctx.lineTo(-r * .04, r * .02); ctx.lineTo(-r * .08, r * .2); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(r * .12, r * .02); ctx.lineTo(r * .04, r * .02); ctx.lineTo(r * .08, r * .2); ctx.fill();
+    }
+    case 3: { // gold trim, eye holes, jewel
+      ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = Math.max(1.2, r * .07); shapePathB(3, r * .94); ctx.stroke();
+      ctx.fillStyle = dark;
+      [-1, 1].forEach(s => { ctx.save(); ctx.translate(s * r * .46, r * .02); ctx.rotate(s * -.25); ell(0, 0, r * .27, r * .17); ctx.fill(); ctx.restore(); });
+      ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.moveTo(0, -r * .38); ctx.lineTo(r * .1, -r * .22); ctx.lineTo(0, -r * .06); ctx.lineTo(-r * .1, -r * .22); ctx.fill();
       break;
-    default:
-      ell(-r * .33, -r * .22, r * .22, r * .26); ctx.fill();
-      ell(r * .33, -r * .22, r * .22, r * .26); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(0, r * .05); ctx.lineTo(-r * .11, r * .3); ctx.lineTo(r * .11, r * .3); ctx.fill();
-      ctx.lineWidth = r * .07;
-      for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(i * r * .22, r * .62); ctx.lineTo(i * r * .22, r * .95); ctx.stroke(); }
+    }
+    case 4: { // white-hot core
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(1.2, r * .08);
+      ctx.beginPath(); ctx.moveTo(.2 * r, -.8 * r); ctx.lineTo(-.32 * r, .0); ctx.lineTo(.08 * r, .02); ctx.lineTo(-.1 * r, .75 * r); ctx.stroke();
+      break;
+    }
+    default: { // glowing flame behind glass + frame
+      ctx.fillStyle = 'rgba(255,248,200,.85)'; ctx.fillRect(-r * .34, -r * .45, r * .68, r * .95);
+      ctx.fillStyle = '#ff8a1f'; ctx.beginPath(); ctx.moveTo(0, -r * .3); ctx.quadraticCurveTo(r * .3, r * .1, 0, r * .4); ctx.quadraticCurveTo(-r * .3, r * .1, 0, -r * .3); ctx.fill();
+      ctx.fillStyle = '#ffe14d'; ell(0, r * .22, r * .09, r * .14); ctx.fill();
+      ctx.strokeStyle = 'rgba(60,35,0,.7)'; ctx.lineWidth = Math.max(1.2, r * .08);
+      ctx.beginPath(); ctx.moveTo(-r * .17, -r * .45); ctx.lineTo(-r * .17, r * .5); ctx.moveTo(r * .17, -r * .45); ctx.lineTo(r * .17, r * .5); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -r * 1.0, r * .24, Math.PI, 0); ctx.stroke();
+    }
   }
 }
+
+/* ----- Book One pieces: shadow ghost, constellation star, chakra orbs ----- */
+const PETALS = { 2: 4, 3: 6, 4: 8, 5: 2 };
+function shapePathA(type, r) {
+  ctx.beginPath();
+  if (type === 0) { // shadow ghost: a wispy, trailing silhouette
+    ctx.moveTo(-r * .9, r * .95); ctx.lineTo(-r * .95, -r * .05);
+    ctx.arc(0, -r * .1, r * .95, Math.PI, 0);
+    ctx.lineTo(r * .95, r * .6);
+    ctx.quadraticCurveTo(r * .75, r * .95, r * .5, r * .75);
+    ctx.quadraticCurveTo(r * .3, r * 1.15, 0, r * .8);
+    ctx.quadraticCurveTo(-r * .3, r * 1.15, -r * .5, r * .75);
+    ctx.quadraticCurveTo(-r * .75, r * .95, -r * .9, r * .95);
+  } else if (type === 1) { // star
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .5 : r * 1.12; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
+  } else ctx.arc(0, 0, r * 1.02, 0, Math.PI * 2); // chakra orb
+  ctx.closePath();
+}
+function drawDetailsA(type, r, t) {
+  if (type === 0) { // smoky wisps + glowing eyes
+    ctx.fillStyle = 'rgba(190,150,255,.22)';
+    [[-.45, .45, .3], [.4, .2, .25], [.05, -.55, .28]].forEach(([x, y, k]) => { ell(x * r, y * r, k * r, k * r * .8); ctx.fill(); });
+    ctx.save(); ctx.shadowColor = '#9ff'; ctx.shadowBlur = r * .5; ctx.fillStyle = '#d9ffff';
+    ell(-r * .33, -r * .2, r * .13, r * .2); ctx.fill(); ell(r * .33, -r * .2, r * .13, r * .2); ctx.fill();
+    ctx.restore();
+  } else if (type === 1) { // constellation: linked dots on the star
+    const pts = [];
+    for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; pts.push([Math.cos(a) * r * .72, Math.sin(a) * r * .72]); }
+    ctx.strokeStyle = 'rgba(120,80,0,.55)'; ctx.lineWidth = Math.max(1, r * .05); ctx.beginPath();
+    [0, 2, 4, 1, 3, 0].forEach((i, k) => ctx[k ? 'lineTo' : 'moveTo'](pts[i][0], pts[i][1])); ctx.stroke();
+    ctx.fillStyle = '#fff';
+    pts.forEach(([x, y]) => { ell(x, y, r * .1, r * .1); ctx.fill(); });
+    ell(0, 0, r * .14, r * .14); ctx.fill();
+  } else { // chakra lotus
+    const n = PETALS[type], two = n === 2;
+    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = Math.max(1, r * .07);
+    for (let i = 0; i < n; i++) {
+      ctx.save(); ctx.rotate(i * Math.PI * 2 / n + (two ? Math.PI / 2 : 0));
+      ell(0, -r * (two ? .42 : .45), r * (two ? .3 : .15), r * (two ? .38 : .3)); ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    ctx.fillStyle = '#fff'; ell(0, 0, r * .12, r * .12); ctx.fill();
+  }
+}
+/* ----- Book Two pieces: badge, silver orb, petrified ghost, snowflake, wreath, solstice sun ----- */
+function spikes(n, ro, ri, rot) {
+  for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n, rr = i % 2 ? ri : ro; ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
+}
+function shapePathC(type, r) {
+  ctx.beginPath();
+  switch (type) {
+    case 0: spikes(5, r * 1.12, r * .55, -Math.PI / 2); break;                        // sheriff's badge
+    case 1: ctx.arc(0, 0, r * 1.02, 0, Math.PI * 2); break;                           // silver orb
+    case 2: { // petrified ghost
+      ctx.moveTo(-r * .95, r * .95); ctx.lineTo(-r * .95, -r * .1);
+      ctx.arc(0, -r * .1, r * .95, Math.PI, 0); ctx.lineTo(r * .95, r * .95);
+      ctx.lineTo(r * .6, r * .7); ctx.lineTo(r * .3, r * .95); ctx.lineTo(0, r * .7); ctx.lineTo(-r * .3, r * .95); ctx.lineTo(-r * .6, r * .7);
+      break;
+    }
+    case 3: spikes(6, r * 1.12, r * .5, -Math.PI / 2); break;                         // snowflake body
+    case 4: ctx.arc(0, 0, r * 1.05, 0, Math.PI * 2); ctx.moveTo(r * .5, 0); ctx.arc(0, 0, r * .5, 0, Math.PI * 2, true); break; // wreath
+    default: spikes(12, r * 1.12, r * .82, 0);                                        // solstice sun
+  }
+  ctx.closePath();
+}
+function drawDetailsC(type, r, t) {
+  const dark = 'rgba(28,8,40,.8)';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  switch (type) {
+    case 0: { // badge: ball tips, ring and inner star
+      ctx.fillStyle = '#fff2b0'; ctx.strokeStyle = 'rgba(90,60,0,.6)'; ctx.lineWidth = Math.max(1, r * .05);
+      for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; ell(Math.cos(a) * r * .98, Math.sin(a) * r * .98, r * .13, r * .13); ctx.fill(); ctx.stroke(); }
+      ctx.beginPath(); ctx.arc(0, 0, r * .42, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = 'rgba(90,60,0,.55)'; ctx.beginPath(); spikes(5, r * .3, r * .13, -Math.PI / 2); ctx.closePath(); ctx.fill();
+      break;
+    }
+    case 1: { // silver orb: metallic bands and glints
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = r * .09;
+      ctx.beginPath(); ctx.arc(0, 0, r * .72, .5, 1.9); ctx.stroke();
+      ctx.strokeStyle = 'rgba(70,85,105,.45)'; ctx.beginPath(); ctx.arc(0, 0, r * .6, 3.6, 5.1); ctx.stroke();
+      ctx.fillStyle = '#fff'; ell(r * .38, r * .3, r * .08, r * .08); ctx.fill();
+      break;
+    }
+    case 2: { // petrified: wide stone eyes, open mouth, cracks
+      ctx.fillStyle = dark; ell(-r * .33, -r * .2, r * .16, r * .2); ctx.fill(); ell(r * .33, -r * .2, r * .16, r * .2); ctx.fill();
+      ell(0, r * .25, r * .14, r * .2); ctx.fill();
+      ctx.strokeStyle = 'rgba(40,10,80,.7)'; ctx.lineWidth = Math.max(1, r * .06);
+      ctx.beginPath(); ctx.moveTo(r * .1, -r * .95); ctx.lineTo(-r * .05, -r * .6); ctx.lineTo(r * .12, -r * .45); ctx.lineTo(0, -r * .3); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-r * .8, r * .1); ctx.lineTo(-r * .55, r * .25); ctx.lineTo(-r * .62, r * .5); ctx.stroke();
+      break;
+    }
+    case 3: { // snowflake arms with branches
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(1.2, r * .09);
+      for (let i = 0; i < 6; i++) {
+        ctx.save(); ctx.rotate(i * Math.PI / 3);
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -r * .95);
+        ctx.moveTo(0, -r * .5); ctx.lineTo(-r * .22, -r * .72); ctx.moveTo(0, -r * .5); ctx.lineTo(r * .22, -r * .72); ctx.stroke(); ctx.restore();
+      }
+      break;
+    }
+    case 4: { // wreath: berries + bow
+      ctx.fillStyle = '#e63946';
+      [[.0, -.78], [.55, -.55], [-.55, -.55], [.8, 0], [-.8, 0], [.55, .55], [-.55, .55]].forEach(([x, y]) => { ell(x * r, y * r, r * .1, r * .1); ctx.fill(); });
+      ctx.beginPath(); ctx.moveTo(0, r * .78); ctx.lineTo(-r * .3, r * .55); ctx.lineTo(-r * .3, r * 1.0); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, r * .78); ctx.lineTo(r * .3, r * .55); ctx.lineTo(r * .3, r * 1.0); ctx.closePath(); ctx.fill();
+      ell(0, r * .78, r * .09, r * .09); ctx.fillStyle = '#ffd1d1'; ctx.fill();
+      break;
+    }
+    default: { // sun: inner disc
+      ctx.fillStyle = 'rgba(255,240,200,.75)'; ell(0, 0, r * .55, r * .55); ctx.fill();
+      ctx.strokeStyle = 'rgba(160,60,0,.5)'; ctx.lineWidth = Math.max(1, r * .06); ctx.beginPath(); ctx.arc(0, 0, r * .55, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+}
+const shapePath = (type, r) => [null, shapePathA, shapePathC, shapePathB][theme](type, r);
+const drawDetails = (type, r) => [null, drawDetailsA, drawDetailsC, drawDetailsB][theme](type, r);
+
+function ell(x, y, rx, ry) { ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); }
 
 function drawCandy(type, sp, r, t, flat) {
   if (sp === SP_BOMB) {
@@ -783,6 +907,7 @@ function startLevel(n) {
   selected = drag = hint = null; particles = []; popups = []; beams = [];
   $('menu').classList.add('hidden'); $('game').classList.remove('hidden'); $('overlay').classList.add('hidden');
   const st = STAGES[stageOf(n) - 1];
+  theme = stageOf(n); PALETTE = PALETTES[theme];
   $('lvlabel').textContent = 'Level ' + n;
   $('stagename').textContent = st.title;
   $('caption').textContent = st.lines[(n - 1) % 10];
